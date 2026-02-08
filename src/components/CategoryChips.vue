@@ -59,6 +59,7 @@ const selectCategory = (categoryId) => {
 }
 
 .category-chips-container {
+  padding: 0 15px;
   position: relative;
 }
 
