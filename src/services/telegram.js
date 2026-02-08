@@ -192,4 +192,4 @@ class TelegramService {
   }
 }
 
-export default new TelegramService();
+export default new TelegramService(); 

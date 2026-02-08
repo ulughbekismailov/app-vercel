@@ -100,12 +100,12 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <BottomNavigation />
+    <!-- <BottomNavigation /> -->
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import CartItem from '@/components/CartItem.vue';
@@ -137,4 +137,11 @@ const confirmClearCart = () => {
     }
   });
 };
+
+onMounted(()=>{
+  console.log("Meing konsolim", cartItems.length );
+  console.log("Ikkinchi console", itemCount.value);
+  
+  
+})
 </script>
