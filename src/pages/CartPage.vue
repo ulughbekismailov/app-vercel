@@ -84,7 +84,7 @@
     <!-- Sticky Checkout Button -->
     <div 
       v-if="cartItems.length > 0"
-      class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
+      class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
     >
       <div class="app-container">
         <button
@@ -100,7 +100,7 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <!-- <BottomNavigation /> -->
+    <BottomNavigation />
   </div>
 </template>
 
