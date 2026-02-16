@@ -49,19 +49,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
-import { useUserStore } from '@/stores/user';
 import ProductCard from '@/components/ProductCard.vue';
 import telegram from '@/services/telegram';
+import { useFavoriteStore } from '@/stores/favorites';
+
 
 const router = useRouter();
 const productStore = useProductStore();
-const userStore = useUserStore();
+const favoriteStore = useFavoriteStore();
 
 const favoriteProducts = computed(() => {
-  const favoriteIds = userStore.favorites;
+  const favoriteIds = favoriteStore.likedIds;
   return productStore.products.filter(product => favoriteIds.includes(product.id));
 });
 
@@ -69,4 +70,12 @@ const goToProduct = (productId) => {
   telegram.hapticFeedback('light');
   router.push(`/product/${productId}`);
 };
+
+onMounted(async () => { 
+  await Promise.all([
+    favoriteStore.loadLikes(),
+    productStore.fetchProducts()
+  ]);
+  console.log('✅ Like lar yuklandi, endi products filter qilish mumkin');
+});
 </script>

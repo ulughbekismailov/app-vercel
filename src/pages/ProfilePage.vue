@@ -5,14 +5,14 @@
       <div class="app-container px-4 py-6">
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-full bg-gradient-to-br from-telegram-blue to-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-            {{ userInitials }}
+            UI
           </div>
           <div class="flex-1">
             <h1 class="text-xl font-bold text-gray-900 dark:text-white">
-              {{ userName }}
+              {{user.first_name}}
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              @{{ user.username || 'telegram_user' }}
+              @{{ user.username }}
             </p>
           </div>
         </div>
@@ -24,7 +24,7 @@
       <div class="grid grid-cols-2 gap-3 animate-slide-up stagger-1">
         <div class="card p-4 text-center">
           <div class="text-3xl font-bold text-telegram-blue mb-1">
-            {{ orders.length }}
+            {{orderCount}}
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
             Orders
@@ -32,7 +32,7 @@
         </div>
         <div class="card p-4 text-center">
           <div class="text-3xl font-bold text-telegram-blue mb-1">
-            {{ favorites.length }}
+            {{favoritesCount}}
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
             Favorites
@@ -136,10 +136,6 @@
             @change="changeLanguage"
             class="input-field"
           >
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="de">Deutsch</option>
             <option value="ru">Русский</option>
             <option value="uz">O'zbek</option>
           </select>
@@ -156,40 +152,47 @@
         </p>
       </div>
     </div>
-
-    <!-- Bottom Navigation -->
-    <BottomNavigation />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
-import BottomNavigation from '@/components/BottomNavigation.vue';
 import telegram from '@/services/telegram';
+import { useFavoriteStore } from '@/stores/favorites';
+import { useOrderStore } from '@/stores/order';
 
+const favoriteStore = useFavoriteStore()
 const userStore = useUserStore();
+const orderStore = useOrderStore()
 
+const orderCount = computed(()=> orderStore.orders.length)
 const selectedLanguage = ref(userStore.language);
-
+const favoritesCount = computed(()=> favoriteStore.likedIds.length)
 const user = computed(() => userStore.user);
-const userName = computed(() => userStore.userName);
-const userInitials = computed(() => userStore.userInitials);
-const isDarkMode = computed(() => userStore.isDarkMode);
-const favorites = computed(() => userStore.favorites);
-const orders = computed(() => userStore.orders);
 
-const toggleTheme = () => {
-  userStore.toggleTheme();
-};
+console.log(user);
 
-const changeLanguage = () => {
-  userStore.setLanguage(selectedLanguage.value);
-  telegram.hapticFeedback('success');
-  telegram.showAlert('Language changed successfully!');
-};
 
-onMounted(() => {
-  userStore.fetchOrders();
+// const userName = computed(() => userStore.userName);
+// const userInitials = computed(() => userStore.userInitials);
+// const isDarkMode = computed(() => userStore.isDarkMode);
+
+// const favorites = computed(() => userStore.favorites);
+// const orders = computed(() => userStore.orders);
+
+// const toggleTheme = () => {
+//   userStore.toggleTheme();
+// };
+
+// const changeLanguage = () => {
+//   userStore.setLanguage(selectedLanguage.value);
+//   telegram.hapticFeedback('success');
+//   telegram.showAlert('Language changed successfully!');
+// };
+
+onMounted(async() => {
+  await favoriteStore.loadLikes();
+  await orderStore.fetchOrders();
 });
 </script>

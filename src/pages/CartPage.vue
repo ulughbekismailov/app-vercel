@@ -86,7 +86,7 @@
       v-if="cartItems.length > 0"
       class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
     >
-      <div class="app-container">
+      <div class="app-container pb-3">
         <button
           @click="proceedToCheckout"
           class="btn-primary w-full flex items-center justify-center gap-2"
@@ -100,7 +100,6 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <BottomNavigation />
   </div>
 </template>
 
@@ -109,15 +108,14 @@ import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import CartItem from '@/components/CartItem.vue';
-import BottomNavigation from '@/components/BottomNavigation.vue';
 import telegram from '@/services/telegram';
 
 const router = useRouter();
 const cartStore = useCartStore();
 
-const cartItems = computed(() => cartStore.cartItems);
-const itemCount = computed(() => cartStore.itemCount);
-const totalPrice = computed(() => cartStore.totalPrice);
+const cartItems = computed(() => cartStore.items);
+const itemCount = computed(() => cartStore.total_items);
+const totalPrice = computed(() => cartStore.subtotal);
 
 const goToHome = () => {
   router.push('/');
@@ -130,18 +128,17 @@ const proceedToCheckout = () => {
 };
 
 const confirmClearCart = () => {
-  telegram.showConfirm('Are you sure you want to clear all items from your cart?', (confirmed) => {
-    if (confirmed) {
-      cartStore.clearCart();
-      telegram.showAlert('Cart cleared successfully');
-    }
-  });
+  // telegram.showConfirm('Are you sure you want to clear all items from your cart?', (confirmed) => {
+  //   if (confirmed) {
+  //     cartStore.clearCart();
+  //     telegram.showAlert('Cart cleared successfully');
+  //   }
+  // });
+
+  cartStore.clearCart()
 };
 
-onMounted(()=>{
-  console.log("Meing konsolim", cartItems.length );
-  console.log("Ikkinchi console", itemCount.value);
-  
-  
+onMounted(async () => {
+  await cartStore.fetchCart()
 })
 </script>

@@ -28,7 +28,7 @@
               Full Name
             </label>
             <div class="input-field bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
-              {{ userName }}
+              Ulughbek  Ismailov
             </div>
           </div>
 
@@ -37,7 +37,8 @@
               Telegram Username
             </label>
             <div class="input-field bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
-              @{{ user.username || 'N/A' }}
+              <!-- @{{ user.username || 'N/A' }} -->
+               rootismail
             </div>
           </div>
 
@@ -47,10 +48,17 @@
             </label>
             <input
               v-model="phoneNumber"
+              @input="validatePhone(phoneNumber)"
+              @keypress="isNumber($event)"
+              maxlength="13"
               type="tel"
-              placeholder="Enter your phone number"
+              placeholder="+998123456789"
               class="input-field"
+              :class="{ 'border-red-500': phoneError }"
             />
+            <p v-if="phoneError" class="text-red-500 text-xs mt-1">
+              {{ phoneError }}
+            </p>
           </div>
 
           <div>
@@ -59,10 +67,16 @@
             </label>
             <textarea
               v-model="address"
+              @input="validateAddress(address)"
               rows="3"
               placeholder="Enter your delivery address"
               class="input-field resize-none"
+              :class="{ 'border-red-500': addressError }"
+              required
             ></textarea>
+            <p v-if="addressError" class="text-red-500 text-xs mt-1">
+              {{ addressError }}
+            </p>
           </div>
 
           <div>
@@ -95,20 +109,19 @@
             class="flex items-center gap-3 py-2"
           >
             <img 
-              :src="item.image" 
-              :alt="item.name"
+              src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"
               class="w-12 h-12 rounded-lg object-cover"
             />
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {{ item.name }}
+                {{ item.product_name }}
               </p>
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                Qty: {{ item.quantity }} × ${{ item.price.toFixed(2) }}
+                Qty: {{ item.quantity }} × {{ item.product_price }}
               </p>
             </div>
             <span class="text-sm font-semibold text-gray-900 dark:text-white">
-              ${{ (item.quantity * item.price).toFixed(2) }}
+              ${{ item.total_price.toFixed(2) }}
             </span>
           </div>
         </div>
@@ -124,7 +137,7 @@
           </div>
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
             <span>Tax</span>
-            <span>$0.00</span>
+            <span>0.00 сум</span>
           </div>
           <div class="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between items-center">
             <span class="text-xl font-bold text-gray-900 dark:text-white">
@@ -206,77 +219,151 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import { useUserStore } from '@/stores/user';
-import apiService from '@/services/api';
+import { useOrderStore } from '@/stores/order'; // ✅ OrderStore qo'shildi
 import telegram from '@/services/telegram';
 
 const router = useRouter();
 const cartStore = useCartStore();
 const userStore = useUserStore();
+const orderStore = useOrderStore(); // ✅ OrderStore ishlatiladi
+
+
+
+const user = computed(() => userStore.user);
+const cartItems = computed(() => cartStore.items); // ✅ item.product_name, item.product_price, item.total_price
+const totalPrice = computed(() => cartStore.subtotal); // ✅ subtotal
+
 
 const phoneNumber = ref('');
 const address = ref('');
 const notes = ref('');
+const phoneError = ref('');
+const addressError = ref('');
+
 const paymentMethod = ref('cod');
 const isSubmitting = ref(false);
 
-const user = computed(() => userStore.user);
-const userName = computed(() => userStore.userName);
-const cartItems = computed(() => cartStore.cartItems);
-const totalPrice = computed(() => cartStore.totalPrice);
-
-const isFormValid = computed(() => {
-  return address.value.trim().length > 0;
-});
-
-const placeOrder = async () => {
-  if (!isFormValid.value || isSubmitting.value) return;
-
-  isSubmitting.value = true;
-
-  try {
-    const orderData = {
-      user: {
-        id: user.value.id,
-        name: userName.value,
-        username: user.value.username,
-        phone: phoneNumber.value
-      },
-      items: cartStore.getOrderData().items,
-      total: totalPrice.value,
-      address: address.value,
-      notes: notes.value,
-      paymentMethod: paymentMethod.value,
-      timestamp: new Date().toISOString()
-    };
-
-    const response = await apiService.createOrder(orderData);
-
-    if (response.success) {
-      telegram.hapticFeedback('success');
-      
-      // Clear cart
-      cartStore.clearCart();
-
-      // Show success message
-      telegram.showAlert(response.message || 'Order placed successfully! We will contact you soon.');
-
-      // Navigate to profile/orders
-      setTimeout(() => {
-        router.push('/orders');
-      }, 1500);
-    }
-  } catch (error) {
-    console.error('Order placement failed:', error);
-    telegram.showAlert('Failed to place order. Please try again.');
-  } finally {
-    isSubmitting.value = false;
+const isNumber = (evt) => {
+  const char = String.fromCharCode(evt.keyCode);
+  if (!/^[0-9+]$/.test(char)) {
+    evt.preventDefault();  // ✅ Faqat raqam va + ga ruxsat
   }
 };
 
+const validatePhone = (phone) => {
+  const phoneRegex = /^\+998\d{9}$/;  // +998901234567
+  if (phone && !phoneRegex.test(phone)) {
+    phoneError.value = 'Telefon raqam formati: +998901234567';
+    return false;
+  }
+  phoneError.value = '';
+  return true;
+};
+
+
+const validateAddress = (addr) => {
+  if (!addr || addr.trim().length < 5) {
+    addressError.value = 'Manzil kamida 5 ta belgi bo\'lishi kerak';
+    return false;
+  }
+  addressError.value = '';
+  return true;
+};
+
+
+const isFormValid = computed(() => {
+  const isPhoneValid = !phoneNumber.value || validatePhone(phoneNumber.value);
+  const isAddressValid = validateAddress(address.value);
+  
+  return isAddressValid && isPhoneValid;
+});
+
+
+const placeOrder = async () => {
+  // ============================================================
+  // 1️⃣ TEKSHIRISH (Validation)
+  // ============================================================
+  
+  // Agar forma to'ldirilmagan bo'lsa yoki yuborilayotgan bo'lsa, to'xtat
+  if (!isFormValid.value || isSubmitting.value) return;
+
+  // Manzilni tekshirish (majburiy)
+  if (!validateAddress(address.value)) {
+    telegram.showAlert('Iltimos, manzilni to\'liq kiriting');
+    return;
+  }
+
+  // Telefon raqamni tekshirish (agar kiritilgan bo'lsa)
+  if (phoneNumber.value && !validatePhone(phoneNumber.value)) {
+    telegram.showAlert('Telefon raqam formati: +998901234567');
+    return;
+  }
+
+  // ============================================================
+  // 2️⃣ YUBORISH (Submit)
+  // ============================================================
+  
+  isSubmitting.value = true;  // Tugmani bosib bo'lmaydigan qilish
+
+  try {
+    // Backend kutayotgan ma'lumotlarni tayyorlash
+    const orderData = {
+      shipping_address: address.value.trim(),      // Manzil (majburiy)
+      phone_number: phoneNumber.value.trim() || '', // Tel (ixtiyoriy)
+      notes: notes.value.trim() || ''               // Izoh (ixtiyoriy)
+    };
+
+    console.log('📦 Yuborilayotgan order:', orderData);
+
+    // Order yaratish (backendga so'rov)
+    const response = await orderStore.checkout(orderData);
+
+    // ============================================================
+    // 3️⃣ MUVOFFAQIYATLI (Success)
+    // ============================================================
+    
+    if (response) {
+      // telegram.hapticFeedback('success');           // Tebranish
+      
+      // Savatni tozalash (backenddan yangi ma'lumot olish)
+      await cartStore.fetchCart();
+
+      // telegram.showAlert('✅ Buyurtmangiz qabul qilindi!');
+
+      // Order confirmation sahifasiga o'tish
+      setTimeout(() => {
+        // router.push(`/order-confirmation/${response.id}`);
+        router.push('/orders/');
+      }, 1500);
+    }
+  } catch (error) {
+
+    console.error('❌ Order xatosi:', error);
+    
+    // Backenddan kelgan xatolikni o'qish
+    const errorMessage = error.response?.data?.error || 
+                         error.response?.data?.message || 
+                         'Buyurtma yaratishda xatolik yuz berdi';
+    
+    telegram.showAlert(errorMessage);
+    telegram.hapticFeedback('error');
+  } finally {
+    // ============================================================
+    // 5️⃣ TOZALASH (Cleanup)
+    // ============================================================
+    
+    isSubmitting.value = false;  // Tugmani qayta bosish mumkin
+  }
+};
+
+
 onMounted(() => {
+  // ✅ Cart ni backenddan yuklash
+  cartStore.fetchCart();
+  
   // Redirect if cart is empty
-  if (cartItems.value.length === 0) {
-    telegram.showAlert('Your cart is empty');
+  if (cartStore.items.length === 0) {
+    // telegram.showAlert('Savatingiz bo\'sh');
     router.push('/cart');
   }
 });

@@ -10,7 +10,7 @@
             </svg>
           </div>
           <h1 class="text-xl font-bold text-gray-900 dark:text-white font-display">
-            Mini Shop
+            UI-Shop
           </h1>
         </div>
 
@@ -56,7 +56,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="filteredProducts.length === 0" class="text-center py-16 animate-fade-in">
+      <div v-else-if="products.length === 0" class="text-center py-16 animate-fade-in">
         <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
           <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -79,7 +79,7 @@
       <!-- Products Grid -->
       <div v-else class="grid grid-cols-2 gap-3">
         <ProductCard
-          v-for="(product, index) in filteredProducts"
+          v-for="(product, index) in products"
           :key="product.id"
           :product="product"
           :style="{ animationDelay: `${index * 50}ms` }"
@@ -87,58 +87,71 @@
         />
       </div>
     </div>
-
-    <!-- Bottom Navigation -->
-    <BottomNavigation />
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useProductStore } from '@/stores/product';
 import { useUserStore } from '@/stores/user';
 import { useCartStore } from '@/stores/cart';
 import ProductCard from '@/components/ProductCard.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import CategoryChips from '@/components/CategoryChips.vue';
 import AdSlider from '@/components/AdSlider.vue';
-import BottomNavigation from '@/components/BottomNavigation.vue';
 import telegram from '@/services/telegram';
+import { useFavoriteStore } from '@/stores/favorites';
+import { useProductStore } from '@/stores/product';
+import { all } from 'axios';
 
 const router = useRouter();
 const productStore = useProductStore();
 const userStore = useUserStore();
 const cartStore = useCartStore();
-
 const searchQuery = ref('');
-const selectedCategory = ref('all');
+const selectedCategory = ref(null); // ✅ 'all' emas, null
+const favoriteStore = useFavoriteStore();
+// ==================
+// ==================
 
 const loading = computed(() => productStore.loading);
 const categories = computed(() => productStore.categories);
-const filteredProducts = computed(() => productStore.filteredProducts);
+const products = computed(() => productStore.products); // ✅ filteredProducts emas!
 const isDarkMode = computed(() => userStore.isDarkMode);
 
+
+
+// ✅ Qidiruv
 const handleSearch = (query) => {
+  searchQuery.value = query;
   productStore.setSearchQuery(query);
 };
 
+// ✅ Tozalash
 const handleClearSearch = () => {
   searchQuery.value = '';
-  productStore.clearSearch();
+  productStore.setSearchQuery('');
 };
 
+// ✅ Kategoriya tanlash
 const handleCategoryChange = (categoryId) => {
-  selectedCategory.value = categoryId;
-  productStore.setSelectedCategory(categoryId);
-  telegram.hapticFeedback('selection');
+    selectedCategory.value = categoryId;
+    
+  if (categoryId === null) {
+    productStore.setSelectedCategory(null);
+  } else {
+    productStore.setSelectedCategory(categoryId);
+  }
+  
 };
 
+// ✅ Filterlarni tozalash
 const clearFilters = () => {
   searchQuery.value = '';
-  selectedCategory.value = 'all';
+  selectedCategory.value = null;
   productStore.clearSearch();
-  productStore.setSelectedCategory('all');
+  productStore.setSelectedCategory(null);
 };
 
 const goToProduct = (productId) => {
@@ -148,7 +161,6 @@ const goToProduct = (productId) => {
 
 const handleAdClick = (ad) => {
   console.log('Ad clicked:', ad);
-  // Handle ad navigation
 };
 
 const toggleTheme = () => {
@@ -156,13 +168,25 @@ const toggleTheme = () => {
 };
 
 onMounted(async () => {
-  // Initialize data
-  await Promise.all([
-    productStore.fetchProducts(),
-    productStore.fetchCategories()
-  ]);
+  // ✅ 1. Userni yuklash
+  await userStore.fetchCurrentUser();
+  
+  // ✅ 2. Kategoriyalarni yuklash
+  await productStore.fetchCategories();
+  
+  // ✅ 3. Mahsulotlarni yuklash (barchasi)
+  await productStore.fetchProducts();
+  
+  // ✅ 4. Savatni backenddan yuklash
+  await cartStore.fetchCart();
 
-  // Load cart from localStorage
-  cartStore.loadFromLocalStorage();
+
+
+
+
+
+  // ,emsdasidjiougjyfhdfguio
+  await favoriteStore.loadLikes();
+
 });
 </script>

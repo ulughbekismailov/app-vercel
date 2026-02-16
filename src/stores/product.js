@@ -5,7 +5,7 @@ export const useProductStore = defineStore('product', {
   state: () => ({
     products: [],
     categories: [],
-    selectedCategory: 'all',
+    selectedCategory: null,
     searchQuery: '',
     loading: false,
     error: null,
@@ -13,55 +13,45 @@ export const useProductStore = defineStore('product', {
   }),
 
   getters: {
-    filteredProducts: (state) => {
-      let filtered = state.products;
-
-      // Filter by category
-      if (state.selectedCategory && state.selectedCategory !== 'all') {
-        filtered = filtered.filter(p => p.category === state.selectedCategory);
-      }
-
-      // Filter by search query
-      if (state.searchQuery) {
-        const query = state.searchQuery.toLowerCase();
-        filtered = filtered.filter(p => 
-          p.name.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query)
-        );
-      }
-
-      return filtered;
-    },
-
-    productById: (state) => (id) => {
-      return state.products.find(p => p.id === id);
-    },
 
     hasDiscount: () => (product) => {
-      return product.oldPrice && product.oldPrice > product.price;
+      return product.old_price && product.old_price > product.price;
     },
 
     discountPercentage: () => (product) => {
-      if (!product.oldPrice || product.oldPrice <= product.price) return 0;
-      return Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+      if (!product.old_price || product.old_price <= product.price) return 0;
+      return Math.round(((product.old_price - product.price) / product.old_price) * 100);
     }
+    
   },
 
   actions: {
+    // ✅ GET /products/
     async fetchProducts() {
       this.loading = true;
       this.error = null;
       
       try {
-        this.products = await apiService.getProducts();
+        const params = {};
+        
+        if (this.selectedCategory) {
+          params.category = this.selectedCategory;
+        }
+        
+        if (this.searchQuery) {
+          params.search = this.searchQuery;
+        }
+        
+        this.products = await apiService.getProducts(params);
       } catch (error) {
-        this.error = 'Failed to load products';
-        console.error('Error fetching products:', error);
+        this.error = 'Mahsulotlarni yuklashda xatolik';
       } finally {
         this.loading = false;
       }
+
     },
 
+    // ✅ GET /categories/
     async fetchCategories() {
       try {
         this.categories = await apiService.getCategories();
@@ -70,6 +60,7 @@ export const useProductStore = defineStore('product', {
       }
     },
 
+    // ✅ GET /products/{id}/
     async fetchProductById(id) {
       this.loading = true;
       this.error = null;
@@ -77,41 +68,28 @@ export const useProductStore = defineStore('product', {
       try {
         this.currentProduct = await apiService.getProductById(id);
       } catch (error) {
-        this.error = 'Failed to load product details';
+        this.error = 'Mahsulot ma\'lumotlarini yuklashda xatolik';
         console.error('Error fetching product:', error);
       } finally {
         this.loading = false;
       }
     },
 
+    // ✅ Filter va qidiruv (keyin backendga ulaymiz)
     setSelectedCategory(categoryId) {
       this.selectedCategory = categoryId;
+      this.fetchProducts();
     },
 
     setSearchQuery(query) {
       this.searchQuery = query;
+      this.fetchProducts();  // ✅ SHUNI QO'SHING
     },
 
     clearSearch() {
       this.searchQuery = '';
-    },
-
-    async searchProducts(query) {
-      this.searchQuery = query;
-      
-      if (!query) {
-        return;
-      }
-
-      this.loading = true;
-      try {
-        // You can implement server-side search here
-        // this.products = await apiService.searchProducts(query);
-      } catch (error) {
-        console.error('Error searching products:', error);
-      } finally {
-        this.loading = false;
-      }
+      this.selectedCategory = null;
+      this.fetchProducts();
     }
   }
 });

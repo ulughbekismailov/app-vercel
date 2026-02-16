@@ -16,25 +16,22 @@
       <div class="relative bg-white dark:bg-gray-800 mb-4">
         <div class="relative h-96 overflow-hidden">
           <transition-group name="slide-fade">
-            <img
-              v-for="(image, index) in images"
-              :key="image"
-              v-show="currentImageIndex === index"
-              :src="image"
-              :alt="product.name"
-              class="absolute inset-0 w-full h-full object-cover"
-            />
+            <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"/>
           </transition-group>
 
           <!-- Favorite Button -->
           <button
-            @click="toggleFavorite"
+            @click="handleLikeClick"
             class="absolute top-4 right-4 w-11 h-11 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 shadow-lg z-10"
-            :class="{ 'text-red-500': isFavorite, 'text-gray-400': !isFavorite }"
+            :class="[
+              favoriteStore.isLiked(product.id) 
+                ? 'text-red-500 bg-white' 
+                : 'text-gray-400 bg-white/90'
+            ]"
           >
             <svg 
               class="w-6 h-6 transition-all duration-200" 
-              :class="{ 'fill-current': isFavorite }"
+              :class="{'fill-current': favoriteStore.isLiked(product.id) }"
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -93,31 +90,38 @@
           </h1>
 
           <div class="flex items-center gap-3 mb-3">
-            <span class="text-3xl font-bold text-telegram-blue">
-              ${{ product.price.toFixed(2) }}
+            <span 
+              v-if="product.discount_percent"
+              class="text-3xl font-bold text-telegram-blue">
+              ${{ product.new_price }}
+            </span>
+             <span 
+              v-else
+              class="text-3xl font-bold text-telegram-blue">
+              ${{ product.price }}
             </span>
             <span 
-              v-if="hasDiscount" 
+              v-if="product.discount_percent"
               class="text-xl text-gray-400 line-through"
             >
-              ${{ product.oldPrice.toFixed(2) }}
+              ${{ product.price }}
             </span>
             <span 
-              v-if="hasDiscount"
+              v-if="product.discount_percent"
               class="px-2 py-1 bg-red-500 text-white text-sm font-bold rounded-lg"
             >
-              -{{ discountPercent }}%
+              -{{ product.discount_percent }}%
             </span>
           </div>
 
           <!-- Rating -->
-          <div v-if="product.rating" class="flex items-center gap-2">
+          <div class="flex items-center gap-2">
             <div class="flex gap-0.5">
               <svg 
                 v-for="i in 5" 
                 :key="i"
                 class="w-4 h-4"
-                :class="i <= product.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
+                :class="i <= 5 ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -125,14 +129,14 @@
               </svg>
             </div>
             <span class="text-sm text-gray-600 dark:text-gray-400">
-              {{ product.rating }} out of 5
+               5  out of 5
             </span>
           </div>
 
           <!-- Stock Status -->
           <div class="mt-3">
             <span 
-              v-if="product.inStock"
+              v-if="product.is_active"
               class="inline-flex items-center gap-2 text-sm text-green-600 dark:text-green-400"
             >
               <span class="w-2 h-2 bg-green-600 rounded-full"></span>
@@ -181,7 +185,7 @@
           <transition name="expand">
             <div v-show="showDetails" class="px-4 pb-4">
               <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                {{ product.details }}
+                Hammasi birdek
               </p>
             </div>
           </transition>
@@ -205,9 +209,9 @@
     <!-- Sticky Add to Cart Button -->
     <div 
       v-if="product"
-      class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
+      class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
     >
-      <div class="app-container flex gap-3">
+      <div class="app-container flex gap-3 pb-4">
         <div class="flex-1">
           <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Price</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -216,13 +220,13 @@
         </div>
         <button
           @click="addToCart"
-          :disabled="!product.inStock"
+          :disabled="!product.is_active"
           class="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          <span>{{ isInCart ? 'Update Cart' : 'Add to Cart' }}</span>
+          <span>{{ isInCart ? 'Go to Cart' : 'Add to Cart' }}</span>
         </button>
       </div>
     </div>
@@ -234,15 +238,22 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
-import { useUserStore } from '@/stores/user';
 import QuantitySelector from '@/components/QuantitySelector.vue';
 import telegram from '@/services/telegram';
+
+import apiService from '@/services/api';
+
+import { useFavoriteStore } from '@/stores/favorites';
+
+
+
 
 const route = useRoute();
 const router = useRouter();
 const productStore = useProductStore();
 const cartStore = useCartStore();
-const userStore = useUserStore();
+
+const favoriteStore = useFavoriteStore()
 
 const currentImageIndex = ref(0);
 const quantity = ref(1);
@@ -256,14 +267,6 @@ const images = computed(() => {
   return product.value.images || [product.value.image];
 });
 
-const hasDiscount = computed(() => {
-  return product.value?.oldPrice && product.value.oldPrice > product.value.price;
-});
-
-const discountPercent = computed(() => {
-  if (!hasDiscount.value) return 0;
-  return Math.round(((product.value.oldPrice - product.value.price) / product.value.oldPrice) * 100);
-});
 
 const totalPrice = computed(() => {
   return product.value ? product.value.price * quantity.value : 0;
@@ -273,47 +276,53 @@ const isInCart = computed(() => {
   return product.value ? cartStore.isInCart(product.value.id) : false;
 });
 
-const isFavorite = computed(() => {
-  return product.value ? userStore.isFavorite(product.value.id) : false;
-});
+// const nextImage = () => {
+//   currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length;
+//   telegram.hapticFeedback('selection');
+// };
 
-const nextImage = () => {
-  currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length;
-  telegram.hapticFeedback('selection');
+// const prevImage = () => {
+//   currentImageIndex.value = (currentImageIndex.value - 1 + images.value.length) % images.value.length;
+//   telegram.hapticFeedback('selection');
+// };
+
+// const goToImage = (index) => {
+//   currentImageIndex.value = index;
+//   telegram.hapticFeedback('light');
+// };
+
+
+const handleLikeClick = async (event) => {
+  event.stopPropagation();
+  await favoriteStore.toggleFavorite(product.value.id);
 };
 
-const prevImage = () => {
-  currentImageIndex.value = (currentImageIndex.value - 1 + images.value.length) % images.value.length;
-  telegram.hapticFeedback('selection');
-};
 
-const goToImage = (index) => {
-  currentImageIndex.value = index;
-  telegram.hapticFeedback('light');
-};
+const addToCart = async (event) => {
+  if (!product.value || !product.value.is_active) return;
 
-const toggleFavorite = () => {
-  if (product.value) {
-    userStore.toggleFavorite(product.value.id);
+
+  if (!isInCart.value){
+    await cartStore.addItem(product.value.id, quantity.value);
+    console.log("cardga qo'shildi Ishladi");
+    
   }
-};
-
-const addToCart = () => {
-  if (!product.value || !product.value.inStock) return;
-
-  cartStore.addItem(product.value, quantity.value);
   
-  telegram.hapticFeedback('success');
-  telegram.showAlert(`${quantity.value} item(s) added to cart!`);
+  // telegram.hapticFeedback('success');
+  // telegram.showAlert(`${quantity.value} item(s) added to cart!`);
   
   setTimeout(() => {
     router.push('/cart');
-  }, 1000);
+  }, 500);
 };
 
 onMounted(async () => {
   const productId = parseInt(route.params.id);
   await productStore.fetchProductById(productId);
+  await cartStore.fetchCart();
+
+
+  
 
   // Set initial quantity if already in cart
   if (product.value) {

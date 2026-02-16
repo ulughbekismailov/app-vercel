@@ -1,138 +1,164 @@
 import { defineStore } from 'pinia';
+import apiService from '@/services/api';
 import telegram from '@/services/telegram';
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
     items: [],
-    loading: false
+    total_items: 0,
+    subtotal: 0,
+    loading: false,
+    error: null
   }),
 
   getters: {
-    itemCount: (state) => {
-      return state.items.reduce((total, item) => total + item.quantity, 0);
-    },
-
-    totalPrice: (state) => {
-      return state.items.reduce((total, item) => {
-        return total + (item.price * item.quantity);
-      }, 0);
-    },
-
+    // ✅ Frontend hisob (backend bilan bir xil)
+    itemCount: (state) => state.total_items,
+    totalPrice: (state) => state.subtotal,
     cartItems: (state) => state.items,
 
+    // ✅ Mahsulot savatdami?
     isInCart: (state) => (productId) => {
-      return state.items.some(item => item.id === productId);
+      return state.items.some(item => item.product_id === productId);
     },
 
+    // ✅ Mahsulot miqdori
     getItemQuantity: (state) => (productId) => {
-      const item = state.items.find(item => item.id === productId);
+      const item = state.items.find(item => item.product_id === productId);
       return item ? item.quantity : 0;
     }
   },
 
   actions: {
-    addItem(product, quantity = 1) {
-      const existingItem = this.items.find(item => item.id === product.id);
+    // ✅ GET /cart/
+    async fetchCart() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const data = await apiService.getCart();
+        this.items = data.items || [];
+        this.total_items = data.total_items || 0;
+        this.subtotal = data.subtotal || 0;
 
-      if (existingItem) {
-        existingItem.quantity += quantity;
-      } else {
-        this.items.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          quantity: quantity,
-          inStock: product.inStock
-        });
-      }
-
-      telegram.hapticFeedback('success');
-      this.saveToLocalStorage();
-    },
-
-    removeItem(productId) {
-      const index = this.items.findIndex(item => item.id === productId);
-      
-      if (index !== -1) {
-        this.items.splice(index, 1);
-        telegram.hapticFeedback('light');
-        this.saveToLocalStorage();
+      } catch (error) {
+        this.error = 'Savatni yuklashda xatolik';
+        console.error(error);
+      } finally {
+        this.loading = false;
       }
     },
 
-    updateQuantity(productId, quantity) {
-      const item = this.items.find(item => item.id === productId);
-
-      if (item) {
-        if (quantity <= 0) {
-          this.removeItem(productId);
-        } else {
-          item.quantity = quantity;
-          telegram.hapticFeedback('selection');
-          this.saveToLocalStorage();
-        }
+    // ✅ POST /cart/add_item/
+    async addItem(productId, quantity = 1) {
+      this.loading = true;
+      try {
+        const data = await apiService.addToCart(productId, quantity);
+        this.items = data.items;
+        this.total_items = data.total_items;
+        this.subtotal = data.subtotal;
+        // telegram.hapticFeedback('success');
+      } catch (error) {
+        this.error = 'Mahsulot qo\'shilmadi';
+        console.error(error);
+        // telegram.hapticFeedback('error');
+      } finally {
+        this.loading = false;
       }
     },
 
-    incrementQuantity(productId) {
-      const item = this.items.find(item => item.id === productId);
-      if (item) {
-        item.quantity++;
+    // ✅ PATCH /cart/update_item/
+    async updateQuantity(itemId, quantity) {
+      try {
+        const data = await apiService.updateCartItem(itemId, quantity);
+        this.items = data.items;
+        this.total_items = data.total_items;
+        this.subtotal = data.subtotal;
         telegram.hapticFeedback('selection');
-        this.saveToLocalStorage();
+      } catch (error) {
+        console.error(error);
+        telegram.hapticFeedback('error');
       }
     },
 
-    decrementQuantity(productId) {
-      const item = this.items.find(item => item.id === productId);
+    // ✅ DELETE /cart/remove_item/?item_id=
+    async removeItem(itemId) {
+      try {
+        const data = await apiService.removeCartItem(itemId);
+        this.items = data.items;
+        this.total_items = data.total_items;
+        this.subtotal = data.subtotal;
+        
+        telegram.hapticFeedback('light');
+      } catch (error) {
+        console.error(error);
+        telegram.hapticFeedback('error');
+      }
+    },
+
+    // ✅ POST /cart/clear/
+    async clearCart() {
+      try {
+        const data = await apiService.clearCart();
+        this.items = data.items;
+        this.total_items = data.total_items;
+        this.subtotal = data.subtotal;
+        telegram.hapticFeedback('success');
+      } catch (error) {
+        console.error(error);
+        telegram.hapticFeedback('error');
+      }
+    },
+
+    // ✅ Helper: ID bo'yicha o'chirish (item_id kerak)
+    async removeByProductId(productId) {
+      const item = this.items.find(item => item.product_id === productId);
+      if (item) {
+        await this.removeItem(item.id);
+      }
+    },
+
+    // ✅ Helper: ID bo'yicha yangilash
+    // async updateByProductId(productId, quantity) {
+    //   const item = this.items.find(item => item.product_id === productId);
+    //   if (item) {
+    //     if (quantity <= 0) {
+    //       await this.removeItem(item.id);
+    //     } else {
+    //       await this.updateQuantity(item.id, quantity);
+    //     }
+    //   }
+    // },
+
+    // ✅ Increment/Decrement
+    async incrementQuantity(productId) {
+      const item = this.items.find(item => item.product_id === productId);
+      if (item) {
+        await this.updateQuantity(item.id, item.quantity + 1);
+      }
+    },
+
+    async decrementQuantity(productId) {
+      const item = this.items.find(item => item.product_id === productId);
       if (item) {
         if (item.quantity > 1) {
-          item.quantity--;
-          telegram.hapticFeedback('selection');
+          await this.updateQuantity(item.id, item.quantity - 1);
         } else {
-          this.removeItem(productId);
+          await this.removeItem(item.id);
         }
-        this.saveToLocalStorage();
       }
     },
 
-    clearCart() {
-      this.items = [];
-      this.saveToLocalStorage();
-      telegram.hapticFeedback('success');
-    },
-
-    saveToLocalStorage() {
-      try {
-        localStorage.setItem('cart', JSON.stringify(this.items));
-      } catch (error) {
-        console.error('Failed to save cart to localStorage:', error);
-      }
-    },
-
-    loadFromLocalStorage() {
-      try {
-        const savedCart = localStorage.getItem('cart');
-        if (savedCart) {
-          this.items = JSON.parse(savedCart);
-        }
-      } catch (error) {
-        console.error('Failed to load cart from localStorage:', error);
-        this.items = [];
-      }
-    },
-
+    // ✅ Order uchun ma'lumot
     getOrderData() {
       return {
         items: this.items.map(item => ({
-          productId: item.id,
+          product_id: item.product_id,
           quantity: item.quantity,
-          price: item.price
+          price: item.product_price
         })),
-        total: this.totalPrice,
-        itemCount: this.itemCount
+        total: this.subtotal,
+        item_count: this.total_items
       };
-    }
+    },
   }
 });

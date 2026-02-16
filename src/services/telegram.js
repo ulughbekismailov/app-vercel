@@ -179,7 +179,10 @@ class TelegramService {
 
   // Get init data for API requests
   getInitData() {
-    return this.webApp?.initData || '';
+    if (window.Telegram?.WebApp?.initData) {
+      return window.Telegram.WebApp.initData;
+    }
+    return null;
   }
 
   // Platform info

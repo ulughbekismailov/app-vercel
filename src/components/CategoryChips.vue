@@ -1,6 +1,23 @@
 <template>
   <div class="category-chips-container animate-slide-up stagger-1">
-    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide px-4 -mx-4">
+    <div class="flex gap-2 overflow-x-auto p-2 scrollbar-hide px-4 -mx-4">
+
+      <button
+        @click="selectCategory(null)"
+        class="chip whitespace-nowrap px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 flex items-center gap-2 active:scale-95"
+        :class="isSelected(null) 
+          ? 'bg-telegram-blue text-white shadow-md' 
+          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
+      >
+      
+        <span class="text-base">🏪</span>
+        <span>All</span>
+        <span 
+          v-if="isSelected(null)"
+          class="w-1.5 h-1.5 bg-white rounded-full"
+        ></span>
+      </button>
+
       <button
         v-for="category in categories"
         :key="category.id"
@@ -8,9 +25,9 @@
         class="chip whitespace-nowrap px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 flex items-center gap-2 active:scale-95"
         :class="isSelected(category.id) 
           ? 'bg-telegram-blue text-white shadow-md' 
-          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
+          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"  
       >
-        <span v-if="category.icon" class="text-base">{{ category.icon }}</span>
+        <!-- <span v-if="category.icon" class="text-base">{{ category.icon }}</span> -->
         <span>{{ category.name }}</span>
         <span 
           v-if="isSelected(category.id)" 
@@ -32,7 +49,7 @@ const props = defineProps({
   },
   selectedCategory: {
     type: String,
-    default: 'all'
+    default: null
   }
 });
 

@@ -4,8 +4,7 @@
     <div class="flex-shrink-0">
       <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
         <img 
-          :src="item.image" 
-          :alt="item.name"
+          src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"
           class="w-full h-full object-cover"
         />
       </div>
@@ -20,10 +19,10 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-lg font-bold text-gray-900 dark:text-white">
-            ${{ item.price.toFixed(2) }}
+            ${{ item.product_price }}
           </p>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Total: ${{ (item.price * item.quantity).toFixed(2) }}
+            Total: ${{ (item.product_price * item.quantity) }}
           </p>
         </div>
 
@@ -71,7 +70,7 @@
           <button
             @click="incrementQuantity"
             class="w-8 h-8 rounded-lg bg-telegram-blue text-white flex items-center justify-center transition-all duration-200 active:scale-90"
-            :disabled="!item.inStock"
+            :disabled="!item"
           >
             <svg 
               class="w-4 h-4" 
@@ -91,9 +90,13 @@
       </div>
 
       <!-- Stock Warning -->
-      <p v-if="!item.inStock" class="text-xs text-red-500 mt-1">
-        Out of stock
-      </p>
+      <span 
+          v-if="item"
+          class="inline-flex items-center gap-2 text-sm text-green-600 dark:text-green-400"
+          >
+        <span class="w-2 h-2 bg-green-600 rounded-full"></span>
+        In Cart
+      </span>
     </div>
 
     <!-- Remove Button -->
@@ -131,11 +134,11 @@ const props = defineProps({
 const cartStore = useCartStore();
 
 const incrementQuantity = () => {
-  cartStore.incrementQuantity(props.item.id);
+  cartStore.incrementQuantity(props.item.product_id);
 };
 
 const decrementQuantity = () => {
-  cartStore.decrementQuantity(props.item.id);
+  cartStore.decrementQuantity(props.item.product_id);
 };
 
 const removeItem = () => {
