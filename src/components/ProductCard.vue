@@ -51,7 +51,7 @@
 
       <!-- Out of Stock Overlay -->
       <div 
-        v-if="!product.in_stock"
+        v-if="!product.is_active"
         class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"
       >
         <span class="text-white font-semibold text-sm">Out of Stock</span>
