@@ -103,7 +103,7 @@ import AdSlider from '@/components/AdSlider.vue';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useProductStore } from '@/stores/product';
-import { all } from 'axios';
+
 
 const router = useRouter();
 const productStore = useProductStore();
@@ -181,11 +181,6 @@ onMounted(async () => {
   await cartStore.fetchCart();
 
 
-
-
-
-
-  // ,emsdasidjiougjyfhdfguio
   await favoriteStore.loadLikes();
 
 });

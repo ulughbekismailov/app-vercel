@@ -15,6 +15,7 @@ const api = axios.create({
 // Request interceptor to add Telegram init data
 api.interceptors.request.use(
   (config) => {
+    config.headers['ngrok-skip-browser-warning'] = 'true';
     const initData = telegram.getInitData();
     if (initData) {
       config.headers['X-Telegram-Init-Data'] = initData;
