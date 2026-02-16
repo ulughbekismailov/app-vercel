@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import apiService from '@/services/api';
-import telegram from '../services/telegram';
+import telegram from '@/services/telegram';
 
 export const useFavoriteStore = defineStore('favorite', {
   state: () => ({
