@@ -193,7 +193,7 @@
     </div>
 
     <!-- Sticky Confirm Button -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50">
+    <div class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50">
       <div class="app-container">
         <button
           @click="placeOrder"
@@ -284,18 +284,16 @@ const placeOrder = async () => {
   // 1️⃣ TEKSHIRISH (Validation)
   // ============================================================
   
-  // Agar forma to'ldirilmagan bo'lsa yoki yuborilayotgan bo'lsa, to'xtat
   if (!isFormValid.value || isSubmitting.value) return;
 
-  // Manzilni tekshirish (majburiy)
   if (!validateAddress(address.value)) {
-    telegram.showAlert('Iltimos, manzilni to\'liq kiriting');
+    telegram.showAlert('Илтимос, манзилни тўлиқ киритинг.');
     return;
   }
 
   // Telefon raqamni tekshirish (agar kiritilgan bo'lsa)
   if (phoneNumber.value && !validatePhone(phoneNumber.value)) {
-    telegram.showAlert('Telefon raqam formati: +998901234567');
+    telegram.showAlert('Телефон рақам формати: +998901234567');
     return;
   }
 
@@ -315,7 +313,6 @@ const placeOrder = async () => {
 
     console.log('📦 Yuborilayotgan order:', orderData);
 
-    // Order yaratish (backendga so'rov)
     const response = await orderStore.checkout(orderData);
 
     // ============================================================
@@ -323,12 +320,11 @@ const placeOrder = async () => {
     // ============================================================
     
     if (response) {
-      // telegram.hapticFeedback('success');           // Tebranish
+      telegram.hapticFeedback('success');           // Tebranish
       
-      // Savatni tozalash (backenddan yangi ma'lumot olish)
       await cartStore.fetchCart();
 
-      // telegram.showAlert('✅ Buyurtmangiz qabul qilindi!');
+      telegram.showAlert('✅ Буйуртмангиз қабул қилинди!');
 
       // Order confirmation sahifasiga o'tish
       setTimeout(() => {
@@ -358,12 +354,9 @@ const placeOrder = async () => {
 
 
 onMounted(() => {
-  // ✅ Cart ni backenddan yuklash
   cartStore.fetchCart();
   
-  // Redirect if cart is empty
   if (cartStore.items.length === 0) {
-    // telegram.showAlert('Savatingiz bo\'sh');
     router.push('/cart');
   }
 });

@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import CartItem from '@/components/CartItem.vue';
@@ -118,27 +118,58 @@ const itemCount = computed(() => cartStore.total_items);
 const totalPrice = computed(() => cartStore.subtotal);
 
 const goToHome = () => {
-  router.push('/');
   telegram.hapticFeedback('light');
+  router.push('/');
 };
 
 const proceedToCheckout = () => {
-  router.push('/checkout');
   telegram.hapticFeedback('medium');
+  router.push('/checkout');
 };
 
 const confirmClearCart = () => {
-  // telegram.showConfirm('Are you sure you want to clear all items from your cart?', (confirmed) => {
-  //   if (confirmed) {
-  //     cartStore.clearCart();
-  //     telegram.showAlert('Cart cleared successfully');
-  //   }
-  // });
+  telegram.showConfirm('Саватингиздаги барча маҳсулотларни ўчиришни хоҳлайсизми?', async (confirmed) => {
+    if (confirmed) {
+      telegram.hapticFeedback('medium');
 
-  cartStore.clearCart()
+      try{
+        await cartStore.clearCart();
+        telegram.hapticFeedback('medium');
+        telegram.showAlert('Саватингиз тоза');
+      }catch(error){
+        console.log("Savatni tozalashda xatolik:", error)
+        telegram.hapticFeedback('error')
+        telegram.showAlert('Саватни тозалашда хатолик. Қайта уриниб кўринг.')
+      }
+
+    }
+  });
 };
 
+
+let backButtonHandler = null 
+
+
 onMounted(async () => {
-  await cartStore.fetchCart()
+
+    backButtonHandler = () =>{
+    telegram.hapticFeedback('light');
+    router.push('/');
+  }
+
+  telegram.showBackButton(backButtonHandler)
+
+
+  try {
+    await cartStore.fetchCart()
+  } catch (error) {
+    console.log(error)
+  }
+
 })
+
+onUnmounted(()=>{
+  telegram.hideBackButton();
+})
+
 </script>

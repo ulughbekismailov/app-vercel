@@ -48,21 +48,25 @@ const props = defineProps({
     required: true
   },
   selectedCategory: {
-    type: String,
+    type: [String, Number, null],
     default: null
   }
 });
 
 const emit = defineEmits(['update:selectedCategory']);
 
+
 const isSelected = (categoryId) => {
   return props.selectedCategory === categoryId;
 };
 
+
 const selectCategory = (categoryId) => {
-  emit('update:selectedCategory', categoryId);
   telegram.hapticFeedback('selection');
+  emit('update:selectedCategory', categoryId);
+
 };
+
 </script>
 
 <style scoped>
