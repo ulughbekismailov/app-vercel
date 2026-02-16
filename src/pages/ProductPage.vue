@@ -1,5 +1,5 @@
 <template>
-  <div class="product-page min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+  <div class="product-page min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
     <!-- Loading State -->
     <div v-if="loading" class="animate-pulse">
       <div class="w-full h-96 bg-gray-200 dark:bg-gray-800"></div>
@@ -15,23 +15,25 @@
       <!-- Image Slider -->
       <div class="relative bg-white dark:bg-gray-800 mb-4">
         <div class="relative h-96 overflow-hidden">
-          <transition-group name="slide-fade">
-            <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"/>
-          </transition-group>
+          <img 
+            :src="product.image || 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop'"
+            :alt="product.name"
+            class="w-full h-full object-cover"
+          />
 
           <!-- Favorite Button -->
           <button
             @click="handleLikeClick"
             class="absolute top-4 right-4 w-11 h-11 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 shadow-lg z-10"
             :class="[
-              favoriteStore.isLiked(product.id) 
+              isLiked 
                 ? 'text-red-500 bg-white' 
                 : 'text-gray-400 bg-white/90'
             ]"
           >
             <svg 
               class="w-6 h-6 transition-all duration-200" 
-              :class="{'fill-current': favoriteStore.isLiked(product.id) }"
+              :class="{'fill-current': isLiked }"
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -44,40 +46,6 @@
               />
             </svg>
           </button>
-
-          <!-- Navigation Arrows -->
-          <button
-            v-if="images.length > 1"
-            @click="prevImage"
-            class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 shadow-lg"
-          >
-            <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            v-if="images.length > 1"
-            @click="nextImage"
-            class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 shadow-lg"
-          >
-            <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          <!-- Image Indicators -->
-          <div v-if="images.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            <button
-              v-for="(image, index) in images"
-              :key="`dot-${index}`"
-              @click="goToImage(index)"
-              class="transition-all duration-300 rounded-full"
-              :class="currentImageIndex === index 
-                ? 'w-8 h-2 bg-white' 
-                : 'w-2 h-2 bg-white/50'"
-            ></button>
-          </div>
         </div>
       </div>
 
@@ -95,7 +63,7 @@
               class="text-3xl font-bold text-telegram-blue">
               ${{ product.new_price }}
             </span>
-             <span 
+            <span 
               v-else
               class="text-3xl font-bold text-telegram-blue">
               ${{ product.price }}
@@ -129,7 +97,7 @@
               </svg>
             </div>
             <span class="text-sm text-gray-600 dark:text-gray-400">
-               5  out of 5
+              5 out of 5
             </span>
           </div>
 
@@ -165,7 +133,7 @@
         <!-- Expandable Details -->
         <div class="card overflow-hidden animate-slide-up stagger-2">
           <button
-            @click="showDetails = !showDetails"
+            @click="toggleDetails"
             class="w-full px-4 py-4 flex items-center justify-between"
           >
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -184,9 +152,17 @@
           
           <transition name="expand">
             <div v-show="showDetails" class="px-4 pb-4">
-              <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                Hammasi birdek
-              </p>
+              <div class="space-y-2 text-gray-600 dark:text-gray-400">
+                <p v-if="product.category">
+                  <strong>Category:</strong> {{ product.category_name || 'N/A' }}
+                </p>
+                <p>
+                  <strong>SKU:</strong> {{ product.id }}
+                </p>
+                <p v-if="product.created_at">
+                  <strong>Added:</strong> {{ formatDate(product.created_at) }}
+                </p>
+              </div>
             </div>
           </transition>
         </div>
@@ -196,14 +172,35 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Quantity
           </h2>
-          <QuantitySelector v-model="quantity" :min="1" :max="99" />
+          <QuantitySelector 
+            v-model="quantity" 
+            :min="1" 
+            :max="99"
+            @update:modelValue="handleQuantityChange"
+          />
         </div>
       </div>
     </div>
 
     <!-- Error State -->
-    <div v-else class="text-center py-20">
-      <p class="text-gray-500 dark:text-gray-400">Product not found</p>
+    <div v-else class="text-center py-20 animate-fade-in">
+      <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Product not found
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">
+        The product you're looking for doesn't exist
+      </p>
+      <button
+        @click="goBack"
+        class="btn-primary inline-block"
+      >
+        Go Back
+      </button>
     </div>
 
     <!-- Sticky Add to Cart Button -->
@@ -211,7 +208,7 @@
       v-if="product"
       class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
     >
-      <div class="app-container flex gap-3 pb-4">
+      <div class="app-container flex gap-3">
         <div class="flex-1">
           <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Price</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -220,13 +217,17 @@
         </div>
         <button
           @click="addToCart"
-          :disabled="!product.is_active"
+          :disabled="!product.is_active || isAddingToCart"
           class="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg v-if="!isAddingToCart" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          <span>{{ isInCart ? 'Go to Cart' : 'Add to Cart' }}</span>
+          <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>{{ buttonText }}</span>
         </button>
       </div>
     </div>
@@ -234,125 +235,193 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
+import { useFavoriteStore } from '@/stores/favorites';
 import QuantitySelector from '@/components/QuantitySelector.vue';
 import telegram from '@/services/telegram';
 
-import apiService from '@/services/api';
-
-import { useFavoriteStore } from '@/stores/favorites';
-
-
-
-
+// ============================================================
+// ROUTER & STORES
+// ============================================================
 const route = useRoute();
 const router = useRouter();
 const productStore = useProductStore();
 const cartStore = useCartStore();
+const favoriteStore = useFavoriteStore();
 
-const favoriteStore = useFavoriteStore()
-
-const currentImageIndex = ref(0);
+// ============================================================
+// STATE
+// ============================================================
 const quantity = ref(1);
 const showDetails = ref(false);
+const isAddingToCart = ref(false);
 
+// ============================================================
+// COMPUTED
+// ============================================================
 const loading = computed(() => productStore.loading);
 const product = computed(() => productStore.currentProduct);
 
-const images = computed(() => {
-  if (!product.value) return [];
-  return product.value.images || [product.value.image];
+const isLiked = computed(() => {
+  return product.value ? favoriteStore.isLiked(product.value.id) : false;
 });
 
-
 const totalPrice = computed(() => {
-  return product.value ? product.value.price * quantity.value : 0;
+  if (!product.value) return 0;
+  const price = product.value.discount_percent 
+    ? product.value.new_price 
+    : product.value.price;
+  return price * quantity.value;
 });
 
 const isInCart = computed(() => {
   return product.value ? cartStore.isInCart(product.value.id) : false;
 });
 
-// const nextImage = () => {
-//   currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length;
-//   telegram.hapticFeedback('selection');
-// };
+const buttonText = computed(() => {
+  if (isAddingToCart.value) return 'Adding...';
+  if (isInCart.value) return 'Update Cart';
+  return 'Add to Cart';
+});
 
-// const prevImage = () => {
-//   currentImageIndex.value = (currentImageIndex.value - 1 + images.value.length) % images.value.length;
-//   telegram.hapticFeedback('selection');
-// };
+// ============================================================
+// EVENT HANDLERS
+// ============================================================
 
-// const goToImage = (index) => {
-//   currentImageIndex.value = index;
-//   telegram.hapticFeedback('light');
-// };
-
-
-const handleLikeClick = async (event) => {
-  event.stopPropagation();
-  await favoriteStore.toggleFavorite(product.value.id);
+const toggleDetails = () => {
+  showDetails.value = !showDetails.value;
+  telegram.hapticFeedback('light');
 };
 
+const handleQuantityChange = (newQuantity) => {
+  telegram.hapticFeedback('selection');
+  console.log('Quantity changed to:', newQuantity);
+};
 
-const addToCart = async (event) => {
-  if (!product.value || !product.value.is_active) return;
-
-
-  if (!isInCart.value){
-    await cartStore.addItem(product.value.id, quantity.value);
-    console.log("cardga qo'shildi Ishladi");
+const handleLikeClick = async () => {
+  if (!product.value) return;
+  
+  telegram.hapticFeedback('selection');
+  
+  try {
+    await favoriteStore.toggleFavorite(product.value.id, {
+      name: product.value.name,
+      price: product.value.price,
+      image: product.value.image,
+      discount_percent: product.value.discount_percent,
+      new_price: product.value.new_price
+    });
     
+    telegram.hapticFeedback(isLiked.value ? 'success' : 'light');
+  } catch (error) {
+    console.error('Failed to toggle favorite:', error);
   }
-  
-  // telegram.hapticFeedback('success');
-  // telegram.showAlert(`${quantity.value} item(s) added to cart!`);
-  
-  setTimeout(() => {
-    router.push('/cart');
-  }, 500);
 };
+
+const addToCart = async () => {
+  if (!product.value || !product.value.is_active || isAddingToCart.value) return;
+
+  isAddingToCart.value = true;
+  telegram.hapticFeedback('medium');
+
+  try {
+    await cartStore.addItem(product.value.id, quantity.value);
+    
+    console.log('✅ Added to cart:', quantity.value, 'items');
+    telegram.hapticFeedback('success');
+    
+    // Navigate to cart after short delay
+    setTimeout(() => {
+      router.push('/cart');
+    }, 500);
+    
+  } catch (error) {
+    console.error('❌ Failed to add to cart:', error);
+    telegram.hapticFeedback('error');
+    telegram.showAlert('Failed to add to cart. Please try again.');
+  } finally {
+    isAddingToCart.value = false;
+  }
+};
+
+const goBack = () => {
+  telegram.hapticFeedback('light');
+  router.push('/');
+};
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+};
+
+// ============================================================
+// LIFECYCLE - TELEGRAM BACK BUTTON
+// ============================================================
+let backButtonHandler = null;
 
 onMounted(async () => {
-  const productId = parseInt(route.params.id);
-  await productStore.fetchProductById(productId);
-  await cartStore.fetchCart();
-
-
+  // ============================================================
+  // 1️⃣ SHOW TELEGRAM BACK BUTTON
+  // ============================================================
+  backButtonHandler = () => {
+    telegram.hapticFeedback('light');
+    router.back();
+  };
   
+  telegram.showBackButton(backButtonHandler);
+  console.log('✅ Back button enabled');
 
-  // Set initial quantity if already in cart
-  if (product.value) {
-    const cartQuantity = cartStore.getItemQuantity(product.value.id);
-    if (cartQuantity > 0) {
-      quantity.value = cartQuantity;
+  // ============================================================
+  // 2️⃣ LOAD PRODUCT DATA
+  // ============================================================
+  const productId = parseInt(route.params.id);
+  
+  try {
+    await Promise.all([
+      productStore.fetchProductById(productId),
+      cartStore.fetchCart()
+    ]);
+
+    // Set initial quantity if already in cart
+    if (product.value) {
+      const cartQuantity = cartStore.getItemQuantity(product.value.id);
+      if (cartQuantity > 0) {
+        quantity.value = cartQuantity;
+      }
     }
+  } catch (error) {
+    console.error('❌ Failed to load product:', error);
   }
+});
+
+onUnmounted(() => {
+  // ============================================================
+  // CLEANUP - HIDE TELEGRAM BACK BUTTON
+  // ============================================================
+  telegram.hideBackButton();
+  console.log('✅ Back button hidden');
 });
 </script>
 
 <style scoped>
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.5s ease;
-}
-
-.slide-fade-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.slide-fade-leave-to {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-
+/* ============================================================
+   EXPAND TRANSITION
+   ============================================================ */
 .expand-enter-active,
 .expand-leave-active {
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .expand-enter-from,

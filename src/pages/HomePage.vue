@@ -168,6 +168,9 @@ const toggleTheme = () => {
 };
 
 onMounted(async () => {
+  // ✅ Hide BackButton on home page (main screen)
+  telegram.hideBackButton();
+  
   // ✅ 1. Userni yuklash
   await userStore.fetchCurrentUser();
   
@@ -180,13 +183,7 @@ onMounted(async () => {
   // ✅ 4. Savatni backenddan yuklash
   await cartStore.fetchCart();
 
-
-
-
-
-
-  // ,emsdasidjiougjyfhdfguio
+  // ✅ 5. Like larni yuklash
   await favoriteStore.loadLikes();
-
 });
 </script>

@@ -1,15 +1,19 @@
-// stores/favorites.js
+// ============================================================
+// FAVORITES STORE - FIXED VERSION
+// ============================================================
 import { defineStore } from 'pinia';
 import apiService from '@/services/api';
-import { data } from 'autoprefixer';
+import telegram from '@/services/telegram';
 
 export const useFavoriteStore = defineStore('favorite', {
   state: () => ({
     // Like qilingan product ID lari (oddiy array)
     likedIds: [],
+    // Like qilingan productlarning to'liq ma'lumotlari
     likedProducts: [],
     // Yuklanayotgan holat
-    loading: false
+    loading: false,
+    error: null
   }),
 
   getters: {
@@ -18,8 +22,11 @@ export const useFavoriteStore = defineStore('favorite', {
       return state.likedIds.includes(Number(productId));
     },
     
-    // 👉 Like lar soniuseFavoriteStore
-    count: (state) => state.likedIds.length
+    // 👉 Like lar soni
+    count: (state) => state.likedIds.length,
+
+    // 👉 Like qilingan productlar
+    favorites: (state) => state.likedProducts
   },
 
   actions: {
@@ -28,71 +35,155 @@ export const useFavoriteStore = defineStore('favorite', {
     // ============================================================
     async loadLikes() {
       this.loading = true;
+      this.error = null;
       
       try {
         // Backenddan like larni olish
-        const likes = await apiService.getMyLikes(); 
+        const likes = await apiService.getMyLikes();
+        
+        // ID larni saqlash
         this.likedIds = likes.map(item => Number(item.product));
         
+        // To'liq ma'lumotlarni saqlash
         this.likedProducts = likes.map(item => ({
-          id: item.product,
-          product_id: item.product,
+          id: Number(item.product),
+          product_id: Number(item.product),
           product_name: item.product_name,
           product_price: item.product_price,
+          // Qo'shimcha ma'lumotlar (agar backend qaytarsa)
+          product_image: item.product_image || null,
+          discount_percent: item.discount_percent || null,
+          new_price: item.new_price || null
         }));
 
-        console.log('✅ Like lar yuklandi:', this.likedIds);
+        console.log('✅ Likes loaded:', this.likedIds.length, 'items');
+        return this.likedProducts;
       } catch (error) {
-        console.error('❌ Like larni yuklashda xatolik:', error);
+        console.error('❌ Failed to load likes:', error);
+        this.error = 'Failed to load favorites';
         this.likedIds = [];
+        this.likedProducts = [];
+        throw error;
       } finally {
         this.loading = false;
       }
     },
 
     // ============================================================
-    // 2️⃣ LIKE BOSISH (toggle) - SODDA VA TUSHUNARLI
+    // 2️⃣ LIKE BOSISH (toggle) - OPTIMISTIC UPDATE
     // ============================================================
-    async toggleFavorite(productId) {
+    async toggleFavorite(productId, productData = null) {
       // ID ni number ga aylantirish
       const id = Number(productId);
       
       // Hozirgi holatni eslab qolish
       const wasLiked = this.likedIds.includes(id);
       
+      // ============================================================
+      // OPTIMISTIC UPDATE (UI ni darhol yangilash)
+      // ============================================================
+      if (wasLiked) {
+        // Remove from arrays immediately
+        this.likedIds = this.likedIds.filter(item => item !== id);
+        this.likedProducts = this.likedProducts.filter(item => item.product_id !== id);
+      } else {
+        // Add to arrays immediately
+        this.likedIds.push(id);
+        
+        // Add to likedProducts if we have product data
+        if (productData) {
+          this.likedProducts.push({
+            id: id,
+            product_id: id,
+            product_name: productData.name || productData.product_name || 'Product',
+            product_price: productData.price || productData.product_price || 0,
+            product_image: productData.image || productData.product_image || null,
+            discount_percent: productData.discount_percent || null,
+            new_price: productData.new_price || null
+          });
+        }
+      }
+
+      // Haptic feedback for immediate response
+      telegram.hapticFeedback('selection');
+      
       try {
-        // 1️⃣ BACKENDGA SO'ROV YUBORISH
+        // ============================================================
+        // BACKEND REQUEST
+        // ============================================================
         const response = await apiService.toggleLike(id);
         
-        // 2️⃣ BACKEND JAVOBIGA QARAB STATE NI O'ZGARTIRISH
-        if (response.liked === true) {
-          // Like qo'shildi
-          if (!this.likedIds.includes(id)) {
-            this.likedIds.push(id);
-          }
-          console.log(`✅ Product ${id} like qilindi`);
-        } 
-        else if (response.liked === false) {
-          // Like o'chirildi
-          this.likedIds = this.likedIds.filter(item => item !== id);
-          console.log(`✅ Product ${id} like dan chiqarildi`);
+        // ============================================================
+        // VERIFY BACKEND RESPONSE
+        // ============================================================
+        if (response.liked === true && !wasLiked) {
+          // Successfully liked
+          console.log(`✅ Product ${id} liked`);
+        } else if (response.liked === false && wasLiked) {
+          // Successfully unliked
+          console.log(`✅ Product ${id} unliked`);
+        } else {
+          // Response doesn't match expected state - reload to sync
+          console.warn('⚠️ Like state mismatch, reloading...');
+          await this.loadLikes();
         }
         
       } catch (error) {
-        // 3️⃣ XATOLIK - avvalgi holat qoladi
-        console.error(`❌ Like xatosi (product ${id}):`, error);
+        // ============================================================
+        // ERROR - ROLLBACK OPTIMISTIC UPDATE
+        // ============================================================
+        console.error(`❌ Toggle favorite error (product ${id}):`, error);
         
-        // Xatolik haqida habar (ixtiyoriy)
-        // telegram.showAlert?.(`Like ishlamadi`);
+        // Rollback to previous state
+        if (wasLiked) {
+          // Was liked, should restore like
+          if (!this.likedIds.includes(id)) {
+            this.likedIds.push(id);
+          }
+          if (productData && !this.likedProducts.find(p => p.product_id === id)) {
+            this.likedProducts.push({
+              id: id,
+              product_id: id,
+              product_name: productData.name || productData.product_name || 'Product',
+              product_price: productData.price || productData.product_price || 0
+            });
+          }
+        } else {
+          // Was not liked, should remove like
+          this.likedIds = this.likedIds.filter(item => item !== id);
+          this.likedProducts = this.likedProducts.filter(item => item.product_id !== id);
+        }
+        
+        // Show error feedback
+        telegram.hapticFeedback('error');
+        telegram.showAlert('Failed to update favorite. Please try again.');
+        
+        throw error;
       }
     },
 
     // ============================================================
-    // 3️⃣ TOZALASH (logout yoki kerak bo'lganda)
+    // 3️⃣ REMOVE FROM FAVORITES (called from FavoritesPage)
+    // ============================================================
+    async removeFavorite(productId) {
+      await this.toggleFavorite(productId);
+    },
+
+    // ============================================================
+    // 4️⃣ TOZALASH (logout yoki kerak bo'lganda)
     // ============================================================
     clearFavorites() {
       this.likedIds = [];
-      console.log('🧹 Like lar tozalandi');
+      this.likedProducts = [];
+      this.error = null;
+      console.log('🧹 Favorites cleared');
+    },
+
+    // ============================================================
+    // 5️⃣ GET FAVORITE PRODUCT BY ID
+    // ============================================================
+    getFavoriteProduct(productId) {
+      return this.likedProducts.find(p => p.product_id === Number(productId));
     }
   }
 });

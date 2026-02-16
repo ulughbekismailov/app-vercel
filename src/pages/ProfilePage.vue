@@ -156,7 +156,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
@@ -191,8 +191,27 @@ console.log(user);
 //   telegram.showAlert('Language changed successfully!');
 // };
 
+// ============================================================
+// LIFECYCLE - TELEGRAM BACK BUTTON
+// ============================================================
+let backButtonHandler = null;
+
 onMounted(async() => {
+  // Show BackButton
+  backButtonHandler = () => {
+    telegram.hapticFeedback('light');
+    router.push('/');
+  };
+  telegram.showBackButton(backButtonHandler);
+  
+  // Load data
   await favoriteStore.loadLikes();
   await orderStore.fetchOrders();
+  console.log('✅ Profile data loaded');
+});
+
+onUnmounted(() => {
+  telegram.hideBackButton();
+  console.log('✅ BackButton hidden on Profile unmount');
 });
 </script>

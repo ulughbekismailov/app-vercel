@@ -1,5 +1,5 @@
 <template>
-  <div class="cart-page min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="cart-page min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
     <!-- Header -->
     <header class="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 animate-slide-up">
       <div class="app-container px-4 py-4">
@@ -13,8 +13,10 @@
     </header>
 
     <!-- Cart Content -->
-    <div class="px-4 pt-4 pb-24">
-      <!-- Empty Cart -->
+    <div class="px-4 pt-4">
+      <!-- ============================================================
+           EMPTY CART STATE
+           ============================================================ -->
       <div v-if="cartItems.length === 0" class="text-center py-20 animate-fade-in">
         <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
           <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +37,9 @@
         </button>
       </div>
 
-      <!-- Cart Items -->
+      <!-- ============================================================
+           CART ITEMS LIST
+           ============================================================ -->
       <div v-else class="space-y-3">
         <CartItem
           v-for="item in cartItems"
@@ -52,7 +56,9 @@
         </button>
       </div>
 
-      <!-- Order Summary -->
+      <!-- ============================================================
+           ORDER SUMMARY
+           ============================================================ -->
       <div v-if="cartItems.length > 0" class="mt-6 card p-4 animate-slide-up stagger-1">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Order Summary
@@ -69,6 +75,11 @@
             <span class="text-green-600 dark:text-green-400">Free</span>
           </div>
 
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Tax</span>
+            <span>$0.00</span>
+          </div>
+
           <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between items-center">
             <span class="text-xl font-bold text-gray-900 dark:text-white">
               Total
@@ -81,12 +92,14 @@
       </div>
     </div>
 
-    <!-- Sticky Checkout Button -->
+    <!-- ============================================================
+         STICKY CHECKOUT BUTTON
+         ============================================================ -->
     <div 
       v-if="cartItems.length > 0"
       class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
     >
-      <div class="app-container pb-3">
+      <div class="app-container">
         <button
           @click="proceedToCheckout"
           class="btn-primary w-full flex items-center justify-center gap-2"
@@ -98,47 +111,94 @@
         </button>
       </div>
     </div>
-
-    <!-- Bottom Navigation -->
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import CartItem from '@/components/CartItem.vue';
 import telegram from '@/services/telegram';
 
+// ============================================================
+// ROUTER & STORES
+// ============================================================
 const router = useRouter();
 const cartStore = useCartStore();
 
+// ============================================================
+// COMPUTED
+// ============================================================
 const cartItems = computed(() => cartStore.items);
 const itemCount = computed(() => cartStore.total_items);
 const totalPrice = computed(() => cartStore.subtotal);
 
+// ============================================================
+// EVENT HANDLERS
+// ============================================================
+
 const goToHome = () => {
-  router.push('/');
   telegram.hapticFeedback('light');
+  router.push('/');
 };
 
 const proceedToCheckout = () => {
-  router.push('/checkout');
   telegram.hapticFeedback('medium');
+  router.push('/checkout');
 };
 
 const confirmClearCart = () => {
-  // telegram.showConfirm('Are you sure you want to clear all items from your cart?', (confirmed) => {
-  //   if (confirmed) {
-  //     cartStore.clearCart();
-  //     telegram.showAlert('Cart cleared successfully');
-  //   }
-  // });
-
-  cartStore.clearCart()
+  telegram.showConfirm('Are you sure you want to clear all items from your cart?', async (confirmed) => {
+    if (confirmed) {
+      telegram.hapticFeedback('medium');
+      
+      try {
+        await cartStore.clearCart();
+        telegram.hapticFeedback('success');
+        console.log('✅ Cart cleared');
+      } catch (error) {
+        console.error('❌ Failed to clear cart:', error);
+        telegram.hapticFeedback('error');
+        telegram.showAlert('Failed to clear cart. Please try again.');
+      }
+    }
+  });
 };
 
+// ============================================================
+// LIFECYCLE - TELEGRAM BACK BUTTON
+// ============================================================
+let backButtonHandler = null;
+
 onMounted(async () => {
-  await cartStore.fetchCart()
-})
+  // ============================================================
+  // 1️⃣ SHOW BACK BUTTON (only if not on main tab)
+  // ============================================================
+  backButtonHandler = () => {
+    telegram.hapticFeedback('light');
+    router.push('/');
+  };
+  
+  telegram.showBackButton(backButtonHandler);
+  console.log('✅ Back button enabled on CartPage');
+
+  // ============================================================
+  // 2️⃣ LOAD CART DATA
+  // ============================================================
+  try {
+    await cartStore.fetchCart();
+    console.log('✅ Cart loaded:', itemCount.value, 'items');
+  } catch (error) {
+    console.error('❌ Failed to load cart:', error);
+  }
+});
+
+onUnmounted(() => {
+  // ============================================================
+  // CLEANUP - HIDE BACK BUTTON
+  // ============================================================
+  telegram.hideBackButton();
+  console.log('✅ Back button hidden on CartPage unmount');
+});
 </script>

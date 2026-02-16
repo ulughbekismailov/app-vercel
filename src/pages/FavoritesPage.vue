@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
 import ProductCard from '@/components/ProductCard.vue';
@@ -71,11 +71,29 @@ const goToProduct = (productId) => {
   router.push(`/product/${productId}`);
 };
 
-onMounted(async () => { 
+// ============================================================
+// LIFECYCLE - TELEGRAM BACK BUTTON
+// ============================================================
+let backButtonHandler = null;
+
+onMounted(async () => {
+  // Show BackButton
+  backButtonHandler = () => {
+    telegram.hapticFeedback('light');
+    router.push('/');
+  };
+  telegram.showBackButton(backButtonHandler);
+  
+  // Load data
   await Promise.all([
     favoriteStore.loadLikes(),
     productStore.fetchProducts()
   ]);
-  console.log('✅ Like lar yuklandi, endi products filter qilish mumkin');
+  console.log('✅ Favorites loaded');
+});
+
+onUnmounted(() => {
+  telegram.hideBackButton();
+  console.log('✅ BackButton hidden on Favorites unmount');
 });
 </script>

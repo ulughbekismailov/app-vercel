@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrderStore } from '@/stores/order';
 import telegram from '@/services/telegram';
@@ -135,9 +135,26 @@ const viewOrderDetails = (orderId) => {
   telegram.showAlert(`Order #${orderId} details would be shown here`);
 };
 
+// ============================================================
+// LIFECYCLE - TELEGRAM BACK BUTTON
+// ============================================================
+let backButtonHandler = null;
+
 onMounted(async() => {
-  await orderStore.fetchOrders();
-  console.log("Order consolda", orders.value);
+  // Show BackButton
+  backButtonHandler = () => {
+    telegram.hapticFeedback('light');
+    router.push('/');
+  };
+  telegram.showBackButton(backButtonHandler);
   
+  // Load orders
+  await orderStore.fetchOrders();
+  console.log("✅ Orders loaded", orders.value);
+});
+
+onUnmounted(() => {
+  telegram.hideBackButton();
+  console.log('✅ BackButton hidden on Orders unmount');
 });
 </script>

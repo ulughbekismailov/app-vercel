@@ -7,13 +7,15 @@
           Checkout
         </h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Review your order details
+          Complete your order
         </p>
       </div>
     </header>
 
     <div class="px-4 pt-4 space-y-4">
-      <!-- User Information -->
+      <!-- ============================================================
+           CUSTOMER INFORMATION
+           ============================================================ -->
       <div class="card p-4 animate-slide-up">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <svg class="w-5 h-5 text-telegram-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,53 +25,61 @@
         </h2>
 
         <div class="space-y-3">
+          <!-- Full Name (from Telegram) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
               Full Name
             </label>
             <div class="input-field bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
-              Ulughbek  Ismailov
+              {{ userFullName }}
             </div>
           </div>
 
+          <!-- Telegram Username -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
               Telegram Username
             </label>
             <div class="input-field bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
-              <!-- @{{ user.username || 'N/A' }} -->
-               rootismail
+              @{{ userUsername || 'N/A' }}
             </div>
           </div>
 
+          <!-- Phone Number (Optional but validated) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
-              Phone Number (Optional)
+              Phone Number <span class="text-xs">(Optional)</span>
             </label>
             <input
               v-model="phoneNumber"
-              @input="validatePhone(phoneNumber)"
+              @input="validatePhone"
               @keypress="isNumber($event)"
+              @focus="telegram.hapticFeedback('light')"
               maxlength="13"
               type="tel"
-              placeholder="+998123456789"
+              placeholder="+998901234567"
               class="input-field"
               :class="{ 'border-red-500': phoneError }"
             />
             <p v-if="phoneError" class="text-red-500 text-xs mt-1">
               {{ phoneError }}
             </p>
+            <p v-else class="text-gray-400 text-xs mt-1">
+              Format: +998XXXXXXXXX
+            </p>
           </div>
 
+          <!-- Delivery Address (Required) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
-              Delivery Address
+              Delivery Address <span class="text-red-500">*</span>
             </label>
             <textarea
               v-model="address"
-              @input="validateAddress(address)"
+              @input="validateAddress"
+              @focus="telegram.hapticFeedback('light')"
               rows="3"
-              placeholder="Enter your delivery address"
+              placeholder="Enter your full delivery address (street, building, apartment)"
               class="input-field resize-none"
               :class="{ 'border-red-500': addressError }"
               required
@@ -77,23 +87,30 @@
             <p v-if="addressError" class="text-red-500 text-xs mt-1">
               {{ addressError }}
             </p>
+            <p v-else class="text-gray-400 text-xs mt-1">
+              Minimum 10 characters
+            </p>
           </div>
 
+          <!-- Notes (Optional) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
-              Notes (Optional)
+              Order Notes <span class="text-xs">(Optional)</span>
             </label>
             <textarea
               v-model="notes"
+              @focus="telegram.hapticFeedback('light')"
               rows="2"
-              placeholder="Any special instructions?"
+              placeholder="Any special instructions? (e.g., delivery time, floor number)"
               class="input-field resize-none"
             ></textarea>
           </div>
         </div>
       </div>
 
-      <!-- Order Summary -->
+      <!-- ============================================================
+           ORDER SUMMARY
+           ============================================================ -->
       <div class="card p-4 animate-slide-up stagger-1">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <svg class="w-5 h-5 text-telegram-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +126,8 @@
             class="flex items-center gap-3 py-2"
           >
             <img 
-              src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"
+              :src="item.product_image || 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop'"
+              :alt="item.product_name"
               class="w-12 h-12 rounded-lg object-cover"
             />
             <div class="flex-1 min-w-0">
@@ -117,7 +135,7 @@
                 {{ item.product_name }}
               </p>
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                Qty: {{ item.quantity }} × {{ item.product_price }}
+                Qty: {{ item.quantity }} × ${{ item.product_price }}
               </p>
             </div>
             <span class="text-sm font-semibold text-gray-900 dark:text-white">
@@ -137,7 +155,7 @@
           </div>
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
             <span>Tax</span>
-            <span>0.00 сум</span>
+            <span>$0.00</span>
           </div>
           <div class="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between items-center">
             <span class="text-xl font-bold text-gray-900 dark:text-white">
@@ -150,7 +168,9 @@
         </div>
       </div>
 
-      <!-- Payment Method -->
+      <!-- ============================================================
+           PAYMENT METHOD
+           ============================================================ -->
       <div class="card p-4 animate-slide-up stagger-2">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <svg class="w-5 h-5 text-telegram-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,14 +180,19 @@
         </h2>
 
         <div class="space-y-2">
-          <label class="flex items-center p-3 rounded-xl border-2 border-telegram-blue bg-telegram-blue/5 cursor-pointer">
+          <label 
+            @click="selectPaymentMethod('cod')"
+            class="flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all duration-200"
+            :class="paymentMethod === 'cod' 
+              ? 'border-telegram-blue bg-telegram-blue/5' 
+              : 'border-gray-200 dark:border-gray-700'"
+          >
             <input 
               type="radio" 
               name="payment" 
               value="cod"
               v-model="paymentMethod"
               class="w-5 h-5 text-telegram-blue"
-              checked
             />
             <div class="ml-3 flex-1">
               <p class="font-medium text-gray-900 dark:text-white">Cash on Delivery</p>
@@ -175,7 +200,7 @@
             </div>
           </label>
 
-          <label class="flex items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 cursor-pointer opacity-50">
+          <label class="flex items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-50">
             <input 
               type="radio" 
               name="payment" 
@@ -192,8 +217,13 @@
       </div>
     </div>
 
-    <!-- Sticky Confirm Button -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50">
+    <!-- ============================================================
+         STICKY CONFIRM BUTTON (Fallback if MainButton not available)
+         ============================================================ -->
+    <div 
+      v-if="!useMainButton"
+      class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
+    >
       <div class="app-container">
         <button
           @click="placeOrder"
@@ -215,156 +245,187 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import { useUserStore } from '@/stores/user';
-import { useOrderStore } from '@/stores/order'; // ✅ OrderStore qo'shildi
+import { useOrderStore } from '@/stores/order';
 import telegram from '@/services/telegram';
 
+// ============================================================
+// ROUTER & STORES
+// ============================================================
 const router = useRouter();
 const cartStore = useCartStore();
 const userStore = useUserStore();
-const orderStore = useOrderStore(); // ✅ OrderStore ishlatiladi
+const orderStore = useOrderStore();
 
-
-
-const user = computed(() => userStore.user);
-const cartItems = computed(() => cartStore.items); // ✅ item.product_name, item.product_price, item.total_price
-const totalPrice = computed(() => cartStore.subtotal); // ✅ subtotal
-
-
+// ============================================================
+// STATE
+// ============================================================
 const phoneNumber = ref('');
 const address = ref('');
 const notes = ref('');
 const phoneError = ref('');
 const addressError = ref('');
-
 const paymentMethod = ref('cod');
 const isSubmitting = ref(false);
+const useMainButton = ref(telegram.isInTelegram());
+
+// ============================================================
+// COMPUTED
+// ============================================================
+const userFullName = computed(() => userStore.userFullName);
+const userUsername = computed(() => userStore.userUsername);
+const cartItems = computed(() => cartStore.items);
+const totalPrice = computed(() => cartStore.subtotal);
+
+const isFormValid = computed(() => {
+  const isPhoneValid = !phoneNumber.value || validatePhone();
+  const isAddressValid = validateAddress();
+  return isAddressValid && isPhoneValid;
+});
+
+// ============================================================
+// VALIDATION FUNCTIONS
+// ============================================================
 
 const isNumber = (evt) => {
   const char = String.fromCharCode(evt.keyCode);
   if (!/^[0-9+]$/.test(char)) {
-    evt.preventDefault();  // ✅ Faqat raqam va + ga ruxsat
+    evt.preventDefault();
   }
 };
 
-const validatePhone = (phone) => {
-  const phoneRegex = /^\+998\d{9}$/;  // +998901234567
-  if (phone && !phoneRegex.test(phone)) {
-    phoneError.value = 'Telefon raqam formati: +998901234567';
+const validatePhone = () => {
+  if (!phoneNumber.value) {
+    phoneError.value = '';
+    return true;
+  }
+
+  const phoneRegex = /^\+998\d{9}$/;
+  if (!phoneRegex.test(phoneNumber.value)) {
+    phoneError.value = 'Phone format: +998XXXXXXXXX';
     return false;
   }
+  
   phoneError.value = '';
   return true;
 };
 
-
-const validateAddress = (addr) => {
-  if (!addr || addr.trim().length < 5) {
-    addressError.value = 'Manzil kamida 5 ta belgi bo\'lishi kerak';
+const validateAddress = () => {
+  if (!address.value || address.value.trim().length < 10) {
+    addressError.value = 'Address must be at least 10 characters';
     return false;
   }
+  
   addressError.value = '';
   return true;
 };
 
+const selectPaymentMethod = (method) => {
+  paymentMethod.value = method;
+  telegram.hapticFeedback('selection');
+};
 
-const isFormValid = computed(() => {
-  const isPhoneValid = !phoneNumber.value || validatePhone(phoneNumber.value);
-  const isAddressValid = validateAddress(address.value);
-  
-  return isAddressValid && isPhoneValid;
-});
-
-
+// ============================================================
+// ORDER PLACEMENT
+// ============================================================
 const placeOrder = async () => {
-  // ============================================================
-  // 1️⃣ TEKSHIRISH (Validation)
-  // ============================================================
-  
-  // Agar forma to'ldirilmagan bo'lsa yoki yuborilayotgan bo'lsa, to'xtat
-  if (!isFormValid.value || isSubmitting.value) return;
-
-  // Manzilni tekshirish (majburiy)
-  if (!validateAddress(address.value)) {
-    telegram.showAlert('Iltimos, manzilni to\'liq kiriting');
+  if (!isFormValid.value || isSubmitting.value) {
+    if (!isFormValid.value) {
+      telegram.hapticFeedback('error');
+      telegram.showAlert('Please fill in all required fields correctly');
+    }
     return;
   }
 
-  // Telefon raqamni tekshirish (agar kiritilgan bo'lsa)
-  if (phoneNumber.value && !validatePhone(phoneNumber.value)) {
-    telegram.showAlert('Telefon raqam formati: +998901234567');
-    return;
-  }
-
-  // ============================================================
-  // 2️⃣ YUBORISH (Submit)
-  // ============================================================
-  
-  isSubmitting.value = true;  // Tugmani bosib bo'lmaydigan qilish
+  isSubmitting.value = true;
+  telegram.setMainButtonLoading(true);
+  telegram.hapticFeedback('heavy');
 
   try {
-    // Backend kutayotgan ma'lumotlarni tayyorlash
     const orderData = {
-      shipping_address: address.value.trim(),      // Manzil (majburiy)
-      phone_number: phoneNumber.value.trim() || '', // Tel (ixtiyoriy)
-      notes: notes.value.trim() || ''               // Izoh (ixtiyoriy)
+      shipping_address: address.value.trim(),
+      phone_number: phoneNumber.value.trim() || '',
+      notes: notes.value.trim() || ''
     };
 
-    console.log('📦 Yuborilayotgan order:', orderData);
+    console.log('📦 Creating order:', orderData);
 
-    // Order yaratish (backendga so'rov)
     const response = await orderStore.checkout(orderData);
 
-    // ============================================================
-    // 3️⃣ MUVOFFAQIYATLI (Success)
-    // ============================================================
-    
     if (response) {
-      // telegram.hapticFeedback('success');           // Tebranish
-      
-      // Savatni tozalash (backenddan yangi ma'lumot olish)
+      telegram.hapticFeedback('success');
       await cartStore.fetchCart();
 
-      // telegram.showAlert('✅ Buyurtmangiz qabul qilindi!');
+      console.log('✅ Order placed successfully:', response.id);
 
-      // Order confirmation sahifasiga o'tish
       setTimeout(() => {
-        // router.push(`/order-confirmation/${response.id}`);
-        router.push('/orders/');
-      }, 1500);
+        router.push('/orders');
+      }, 1000);
     }
   } catch (error) {
-
-    console.error('❌ Order xatosi:', error);
+    console.error('❌ Order error:', error);
     
-    // Backenddan kelgan xatolikni o'qish
     const errorMessage = error.response?.data?.error || 
-                         error.response?.data?.message || 
-                         'Buyurtma yaratishda xatolik yuz berdi';
+                        error.response?.data?.message || 
+                        'Failed to create order. Please try again.';
     
-    telegram.showAlert(errorMessage);
     telegram.hapticFeedback('error');
+    telegram.showAlert(errorMessage);
   } finally {
-    // ============================================================
-    // 5️⃣ TOZALASH (Cleanup)
-    // ============================================================
-    
-    isSubmitting.value = false;  // Tugmani qayta bosish mumkin
+    isSubmitting.value = false;
+    telegram.setMainButtonLoading(false);
   }
 };
 
+// ============================================================
+// LIFECYCLE - TELEGRAM INTEGRATION
+// ============================================================
+let backButtonHandler = null;
+let mainButtonHandler = null;
 
-onMounted(() => {
-  // ✅ Cart ni backenddan yuklash
-  cartStore.fetchCart();
+onMounted(async () => {
+  // ============================================================
+  // 1️⃣ CHECK CART
+  // ============================================================
+  await cartStore.fetchCart();
   
-  // Redirect if cart is empty
   if (cartStore.items.length === 0) {
-    // telegram.showAlert('Savatingiz bo\'sh');
+    telegram.showAlert('Your cart is empty');
     router.push('/cart');
+    return;
   }
+
+  // ============================================================
+  // 2️⃣ SHOW BACK BUTTON
+  // ============================================================
+  backButtonHandler = () => {
+    telegram.hapticFeedback('light');
+    router.back();
+  };
+  telegram.showBackButton(backButtonHandler);
+
+  // ============================================================
+  // 3️⃣ SHOW MAIN BUTTON (Telegram feature)
+  // ============================================================
+  if (useMainButton.value) {
+    mainButtonHandler = placeOrder;
+    telegram.showMainButton('Confirm Order ($' + totalPrice.value.toFixed(2) + ')', mainButtonHandler);
+  }
+
+  console.log('✅ Checkout page initialized');
+});
+
+onUnmounted(() => {
+  // ============================================================
+  // CLEANUP
+  // ============================================================
+  telegram.hideBackButton();
+  if (useMainButton.value) {
+    telegram.hideMainButton();
+  }
+  console.log('✅ Checkout page cleaned up');
 });
 </script>
