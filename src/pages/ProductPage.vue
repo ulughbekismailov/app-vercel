@@ -294,6 +294,7 @@ const isInCart = computed(() => {
 
 const handleLikeClick = async (event) => {
   event.stopPropagation();
+  telegram.hapticFeedback('medium');
   await favoriteStore.toggleFavorite(product.value.id);
 };
 
@@ -304,12 +305,11 @@ const addToCart = async (event) => {
 
   if (!isInCart.value){
     await cartStore.addItem(product.value.id, quantity.value);
+    telegram.hapticFeedback('success');
     console.log("cardga qo'shildi Ishladi");
-    
   }
   
-  // telegram.hapticFeedback('success');
-  // telegram.showAlert(`${quantity.value} item(s) added to cart!`);
+
   
   setTimeout(() => {
     router.push('/cart');
@@ -320,8 +320,6 @@ onMounted(async () => {
   const productId = parseInt(route.params.id);
   await productStore.fetchProductById(productId);
   await cartStore.fetchCart();
-
-
   
 
   // Set initial quantity if already in cart

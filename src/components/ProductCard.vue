@@ -97,9 +97,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
 import { useFavoriteStore } from '@/stores/favorites';
+import telegram from '@/services/telegram';
 
 
 const props = defineProps({
@@ -109,16 +108,14 @@ const props = defineProps({
   }
 });
 
-defineEmits(['click']);
+const emit = defineEmits(['click']);
 
 const favoriteStore = useFavoriteStore();
-const userStore = useUserStore();
 
-// const emit = defineEmits(['click']);
 
-// Like bosilganda
 const handleLikeClick = async (event) => {
   event.stopPropagation();
+  telegram.hapticFeedback('selection');
   await favoriteStore.toggleFavorite(props.product.id);
 };
 

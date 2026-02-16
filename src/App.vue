@@ -11,10 +11,10 @@
 
 <script setup>
 import { onMounted, watch } from 'vue';
-import { useUserStore } from '@/stores/user';
 import TelegramThemeService from '@/services/telegram-theme';
 import telegram from '@/services/telegram';
-import BottomNavigation from '@/components/BottomNavigation.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue'
+import { useUserStore } from '@/stores/user';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
 
@@ -23,48 +23,49 @@ const userStore = useUserStore();
 const favoriteStore = useFavoriteStore();
 const cartStore = useCartStore();
 
+
 onMounted(async () => {
 
   telegram.init();
-  console.log("Tg web app ishladi:")
-  console.log("Platforma", telegram.getPlatform(), "Versiya:", telegram.getVersion())
+  console.log('✅ Telegram WebApp initialized');
+  console.log('Platform:', telegram.getPlatform(), 'Version:',telegram.getVersion());
+  
 
-
-  const savedTheme = localStorage.getItem('theme')
+  const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
     userStore.theme = savedTheme;
-  }else if(telegram.isInTelegram()){
+  } else if (telegram.isInTelegram()) {
     const telegramTheme = telegram.isDarkMode() ? 'dark' : 'light';
     userStore.theme = telegramTheme;
   }
-
+  
   userStore.applyTheme();
+  
+  new TelegramThemeService(userStore);
 
-  new TelegramThemeService(userStore)
-
-
-  try{
+  try {
     await Promise.all([
       userStore.fetchCurrentUser(),
       favoriteStore.loadLikes(),
       cartStore.fetchCart()
-    ])
-
-     console.log('✅ User malumotlari yuklandi:');
-    console.log('✅ Yoqtirilganlar:', favoriteStore.count);
-    console.log('✅ Savatcha yuklandi:', cartStore.itemCount, 'items');
+    ]);
     
-  }catch (error) {
-    console.error('APP.VUE da Malumot yuklanishida xatolik bor', error);
-  }
+    console.log('✅ User data loaded');
 
+
+  } catch (error) {
+    console.error('Error loading initial data:', error);
+
+  }
 });
+
 
 
 watch(() => userStore.theme, (newTheme) => {
   userStore.applyTheme();
-  console.log('Thema ozgartirildi:', newTheme)
-}, {immediate:false});
+  console.log('Theme changed to:', newTheme);
+}, { immediate: false });
+
 </script>
 
 <style>
@@ -83,9 +84,7 @@ watch(() => userStore.theme, (newTheme) => {
   transform: translateX(-10px);
 }
 
-
 /* #app {
   padding-bottom: env(safe-area-inset-bottom);
 } */
-
 </style>

@@ -86,7 +86,7 @@
       v-if="cartItems.length > 0"
       class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50"
     >
-      <div class="app-container pb-3">
+      <div class="app-container pb-4">
         <button
           @click="proceedToCheckout"
           class="btn-primary w-full flex items-center justify-center gap-2"
@@ -128,48 +128,46 @@ const proceedToCheckout = () => {
 };
 
 const confirmClearCart = () => {
-  telegram.showConfirm('Саватингиздаги барча маҳсулотларни ўчиришни хоҳлайсизми?', async (confirmed) => {
+  telegram.showConfirm('Are you sure you want to clear all items from your cart?', async (confirmed) => {
     if (confirmed) {
       telegram.hapticFeedback('medium');
-
-      try{
+      
+      try {
         await cartStore.clearCart();
-        telegram.hapticFeedback('medium');
-        telegram.showAlert('Саватингиз тоза');
-      }catch(error){
-        console.log("Savatni tozalashda xatolik:", error)
-        telegram.hapticFeedback('error')
-        telegram.showAlert('Саватни тозалашда хатолик. Қайта уриниб кўринг.')
+        telegram.hapticFeedback('success');
+        console.log('✅ Cart cleared');
+      } catch (error) {
+        console.error('Failed to clear cart:', error);
+        telegram.hapticFeedback('error');
+        telegram.showAlert('Failed to clear cart. Please try again.');
       }
-
     }
   });
 };
 
 
-let backButtonHandler = null 
-
+let backButtonHandler = null;
 
 onMounted(async () => {
-
-    backButtonHandler = () =>{
+  backButtonHandler = () => {
     telegram.hapticFeedback('light');
     router.push('/');
-  }
-
-  telegram.showBackButton(backButtonHandler)
-
+  };
+  
+  telegram.showBackButton(backButtonHandler);
 
   try {
-    await cartStore.fetchCart()
+    await cartStore.fetchCart();
+    console.log('✅ Cart loaded:', itemCount.value, 'items');
   } catch (error) {
-    console.log(error)
+    console.error('Failed to load cart:', error);
   }
 
-})
+});
 
-onUnmounted(()=>{
+onUnmounted(() => {
   telegram.hideBackButton();
-})
+  console.log('✅ Back button hidden on CartPage unmount');
+});
 
 </script>

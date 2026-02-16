@@ -194,7 +194,7 @@
 
     <!-- Sticky Confirm Button -->
     <div class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50">
-      <div class="app-container">
+      <div class="app-container pb-4">
         <button
           @click="placeOrder"
           :disabled="!isFormValid || isSubmitting"
@@ -219,19 +219,19 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import { useUserStore } from '@/stores/user';
-import { useOrderStore } from '@/stores/order'; // ✅ OrderStore qo'shildi
+import { useOrderStore } from '@/stores/order';
 import telegram from '@/services/telegram';
 
 const router = useRouter();
 const cartStore = useCartStore();
 const userStore = useUserStore();
-const orderStore = useOrderStore(); // ✅ OrderStore ishlatiladi
+const orderStore = useOrderStore(); 
 
 
 
 const user = computed(() => userStore.user);
-const cartItems = computed(() => cartStore.items); // ✅ item.product_name, item.product_price, item.total_price
-const totalPrice = computed(() => cartStore.subtotal); // ✅ subtotal
+const cartItems = computed(() => cartStore.items); 
+const totalPrice = computed(() => cartStore.subtotal);
 
 
 const phoneNumber = ref('');
@@ -246,12 +246,12 @@ const isSubmitting = ref(false);
 const isNumber = (evt) => {
   const char = String.fromCharCode(evt.keyCode);
   if (!/^[0-9+]$/.test(char)) {
-    evt.preventDefault();  // ✅ Faqat raqam va + ga ruxsat
+    evt.preventDefault();
   }
 };
 
 const validatePhone = (phone) => {
-  const phoneRegex = /^\+998\d{9}$/;  // +998901234567
+  const phoneRegex = /^\+998\d{9}$/; 
   if (phone && !phoneRegex.test(phone)) {
     phoneError.value = 'Telefon raqam formati: +998901234567';
     return false;
@@ -280,53 +280,41 @@ const isFormValid = computed(() => {
 
 
 const placeOrder = async () => {
-  // ============================================================
-  // 1️⃣ TEKSHIRISH (Validation)
-  // ============================================================
-  
+
   if (!isFormValid.value || isSubmitting.value) return;
 
   if (!validateAddress(address.value)) {
-    telegram.showAlert('Илтимос, манзилни тўлиқ киритинг.');
+    telegram.showAlert('Iltimos, manzilni to\'liq kiriting');
     return;
   }
 
-  // Telefon raqamni tekshirish (agar kiritilgan bo'lsa)
   if (phoneNumber.value && !validatePhone(phoneNumber.value)) {
-    telegram.showAlert('Телефон рақам формати: +998901234567');
+    telegram.showAlert('Telefon raqam formati: +998901234567');
     return;
   }
 
-  // ============================================================
-  // 2️⃣ YUBORISH (Submit)
-  // ============================================================
+
   
-  isSubmitting.value = true;  // Tugmani bosib bo'lmaydigan qilish
+  isSubmitting.value = true; 
 
   try {
-    // Backend kutayotgan ma'lumotlarni tayyorlash
     const orderData = {
-      shipping_address: address.value.trim(),      // Manzil (majburiy)
-      phone_number: phoneNumber.value.trim() || '', // Tel (ixtiyoriy)
-      notes: notes.value.trim() || ''               // Izoh (ixtiyoriy)
+      shipping_address: address.value.trim(),
+      phone_number: phoneNumber.value.trim() || '', 
+      notes: notes.value.trim() || ''             
     };
 
     console.log('📦 Yuborilayotgan order:', orderData);
 
     const response = await orderStore.checkout(orderData);
-
-    // ============================================================
-    // 3️⃣ MUVOFFAQIYATLI (Success)
-    // ============================================================
     
     if (response) {
-      telegram.hapticFeedback('success');           // Tebranish
+      telegram.hapticFeedback('success');
       
       await cartStore.fetchCart();
 
-      telegram.showAlert('✅ Буйуртмангиз қабул қилинди!');
+      telegram.showAlert('✅ Buyurtmangiz qabul qilindi!');
 
-      // Order confirmation sahifasiga o'tish
       setTimeout(() => {
         // router.push(`/order-confirmation/${response.id}`);
         router.push('/orders/');
@@ -336,7 +324,6 @@ const placeOrder = async () => {
 
     console.error('❌ Order xatosi:', error);
     
-    // Backenddan kelgan xatolikni o'qish
     const errorMessage = error.response?.data?.error || 
                          error.response?.data?.message || 
                          'Buyurtma yaratishda xatolik yuz berdi';
@@ -344,11 +331,8 @@ const placeOrder = async () => {
     telegram.showAlert(errorMessage);
     telegram.hapticFeedback('error');
   } finally {
-    // ============================================================
-    // 5️⃣ TOZALASH (Cleanup)
-    // ============================================================
-    
-    isSubmitting.value = false;  // Tugmani qayta bosish mumkin
+
+    isSubmitting.value = false;
   }
 };
 

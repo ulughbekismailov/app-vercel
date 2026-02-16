@@ -39,34 +39,29 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import telegram from '@/services/telegram';
 
 const props = defineProps({
   categories: {
-    type: Array,
+    type: [Number, String, null],
     required: true
   },
   selectedCategory: {
-    type: [String, Number, null],
+    type: String,
     default: null
   }
 });
 
 const emit = defineEmits(['update:selectedCategory']);
 
-
 const isSelected = (categoryId) => {
   return props.selectedCategory === categoryId;
 };
 
-
 const selectCategory = (categoryId) => {
   telegram.hapticFeedback('selection');
   emit('update:selectedCategory', categoryId);
-
 };
-
 </script>
 
 <style scoped>
