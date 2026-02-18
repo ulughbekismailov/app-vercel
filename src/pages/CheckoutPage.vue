@@ -241,7 +241,7 @@
 
     <!-- Sticky Confirm Button -->
     <div class="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom z-50">
-      <div class="app-container">
+      <div class="app-container pb-4">
         <button
           @click="placeOrder"
           :disabled="!isFormValid || isSubmitting"
