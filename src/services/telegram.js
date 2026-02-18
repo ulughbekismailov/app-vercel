@@ -191,7 +191,7 @@ class TelegramService {
   }
 
   getVersion() {
-    return this.webApp?.version || '0.0';
+    return this.webApp?.version || '1.0';
   }
 }
 
