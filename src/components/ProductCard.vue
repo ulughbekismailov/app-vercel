@@ -112,7 +112,6 @@ const emit = defineEmits(['click']);
 
 const favoriteStore = useFavoriteStore();
 
-
 const handleLikeClick = async (event) => {
   event.stopPropagation();
   telegram.hapticFeedback('selection');

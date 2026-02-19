@@ -63,7 +63,7 @@ const favoriteStore = useFavoriteStore();
 
 const favoriteProducts = computed(() => {
   const favoriteIds = favoriteStore.likedIds;
-  return productStore.products.filter(product => favoriteIds.includes(product.id));
+  return productStore.products.filter(product => favoriteIds.has(product.id));
 });
 
 const goToProduct = (productId) => {
