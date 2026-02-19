@@ -103,50 +103,44 @@ import AdSlider from '@/components/AdSlider.vue';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useProductStore } from '@/stores/product';
-import { all } from 'axios';
 
 const router = useRouter();
 const productStore = useProductStore();
 const userStore = useUserStore();
 const cartStore = useCartStore();
 const searchQuery = ref('');
-const selectedCategory = ref(null); // ✅ 'all' emas, null
+const selectedCategory = ref(null);
 const favoriteStore = useFavoriteStore();
-// ==================
-// ==================
+
 
 const loading = computed(() => productStore.loading);
 const categories = computed(() => productStore.categories);
-const products = computed(() => productStore.products); // ✅ filteredProducts emas!
+const products = computed(() => productStore.products);
 const isDarkMode = computed(() => userStore.isDarkMode);
 
 
 
-// ✅ Qidiruv
 const handleSearch = (query) => {
   searchQuery.value = query;
   productStore.setSearchQuery(query);
 };
 
-// ✅ Tozalash
 const handleClearSearch = () => {
   searchQuery.value = '';
   productStore.setSearchQuery('');
 };
 
-// ✅ Kategoriya tanlash
 const handleCategoryChange = (categoryId) => {
     selectedCategory.value = categoryId;
     
   if (categoryId === null) {
     productStore.setSelectedCategory(null);
   } else {
-    productStore.setSelectedCategory(categoryId);
+    productStore.setSelectedCategory(categoryId);   
   }
   
 };
 
-// ✅ Filterlarni tozalash
 const clearFilters = () => {
   searchQuery.value = '';
   selectedCategory.value = null;
@@ -168,24 +162,14 @@ const toggleTheme = () => {
 };
 
 onMounted(async () => {
-  // ✅ 1. Userni yuklash
   await userStore.fetchCurrentUser();
   
-  // ✅ 2. Kategoriyalarni yuklash
   await productStore.fetchCategories();
   
-  // ✅ 3. Mahsulotlarni yuklash (barchasi)
   await productStore.fetchProducts();
   
-  // ✅ 4. Savatni backenddan yuklash
   await cartStore.fetchCart();
 
-
-
-
-
-
-  // ,emsdasidjiougjyfhdfguio
   await favoriteStore.loadLikes();
 
 });

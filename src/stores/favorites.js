@@ -1,35 +1,29 @@
-// stores/favorites.js
 import { defineStore } from 'pinia';
 import apiService from '@/services/api';
-import { data } from 'autoprefixer';
 
 export const useFavoriteStore = defineStore('favorite', {
   state: () => ({
-    likedIds: [],
+    likedIds: new Set(), 
     loading: false,
     error:false
   }),
 
   getters: {
     isLiked: (state) => (productId) => {
-      return state.likedIds.includes(Number(productId));
+      return state.likedIds.has(Number(productId));
     },
-    
-    count: (state) => state.likedIds.length
+    count: (state) => state.likedIds.size,
+    likedArray: (state) => Array.from(state.likedIds)
   },
 
   actions: {
     async loadLikes() {
       this.loading = true;
-      
       try {
-        const likes = await apiService.getMyLikes(); 
-        this.likedIds = likes.map(item => Number(item.product));
-        
-        console.log('✅ Like lar yuklandi:', this.likedIds);
+        const likes = await apiService.getMyLikes();
+        this.likedIds = new Set(likes.map(item => Number(item.product)));
       } catch (error) {
-        console.error(' Like larni yuklashda xatolik:', error);
-        this.likedIds = [];
+        this.likedIds = new Set();
       } finally {
         this.loading = false;
       }
@@ -37,23 +31,24 @@ export const useFavoriteStore = defineStore('favorite', {
 
     async toggleFavorite(productId) {
       const id = Number(productId);
+      const wasLiked = this.likedIds.has(id);
+      
+      if (wasLiked) {
+        this.likedIds.delete(id);
+      } else {
+        this.likedIds.add(id);
+      }
       
       try {
         const response = await apiService.toggleLike(id);
         
-        if (response.liked === true) {
-          if (!this.likedIds.includes(id)) {
-            this.likedIds.push(id);
-          }
-          console.log(`✅ Product ${id} like qilindi`);
-        } 
-        else if (response.liked === false) {
-          this.likedIds = this.likedIds.filter(item => item !== id);
-          console.log(`✅ Product ${id} like dan chiqarildi`);
-        }
         
       } catch (error) {
-        console.error(`Like xatosi (product ${id}):`, error);
+        if (wasLiked) {
+          this.likedIds.add(id);
+        } else {
+          this.likedIds.delete(id);
+        }
       }
     },
 

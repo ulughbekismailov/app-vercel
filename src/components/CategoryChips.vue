@@ -43,11 +43,12 @@ import telegram from '@/services/telegram';
 
 const props = defineProps({
   categories: {
-    type: [Number, String, null],
-    required: true
+    type: Array,
+    required: true,
+    default: () => []
   },
   selectedCategory: {
-    type: String,
+    type: [Number, String, null],
     default: null
   }
 });
