@@ -1,7 +1,7 @@
 <template>
   <div 
     class="product-card card overflow-hidden cursor-pointer group animate-fade-in"
-    @click="$emit('click')"
+    @click="handleCardClick"
   >
     <div class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
       <img 
@@ -45,7 +45,6 @@
           </svg>
       </button>
 
-      <!-- Out of Stock Overlay -->
       <div 
         v-if="!product.is_active"
         class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"
@@ -114,6 +113,17 @@ const emit = defineEmits(['click']);
 const productRating = computed(() => Math.floor(Math.random() * 2) + 4);
 
 const favoriteStore = useFavoriteStore();
+
+const handleCardClick = () => {
+  if (!props.product.is_active) {
+    telegram.hapticFeedback('error');
+    telegram.showAlert('Ushbu product hozircha activ emas!');
+    return;
+  }
+  
+  telegram.hapticFeedback('light');
+  emit('click');
+};
 
 const handleLikeClick = async (event) => {
   event.stopPropagation();
