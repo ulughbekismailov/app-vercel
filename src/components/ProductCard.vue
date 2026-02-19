@@ -97,6 +97,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useFavoriteStore } from '@/stores/favorites';
 import telegram from '@/services/telegram';
 
