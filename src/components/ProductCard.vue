@@ -82,7 +82,7 @@
           v-for="i in 5" 
           :key="i"
           class="w-3.5 h-3.5"
-          :class="i <= 5 ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
+          :class="i <= productRating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
