@@ -168,7 +168,7 @@ const orderStore = useOrderStore()
 
 const orderCount = computed(()=> orderStore.orders.length)
 const selectedLanguage = ref(userStore.language);
-const favoritesCount = computed(()=> favoriteStore.likedIds.length)
+const favoritesCount = computed(()=> favoriteStore.likedIds.size)
 const user = computed(() => userStore.user);
 
 console.log(user);
