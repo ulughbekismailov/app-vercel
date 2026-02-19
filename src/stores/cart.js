@@ -127,6 +127,7 @@ export const useCartStore = defineStore('cart', {
       
       const oldQty = item.quantity;
       const oldTotal = this.subtotal;
+      const oldItemCount = this.total_items;
 
       this.subtotal += item.product_price * (quantity - oldQty);
       item.quantity = quantity;
@@ -134,9 +135,16 @@ export const useCartStore = defineStore('cart', {
       
       try {
         const data = await apiService.updateCartItem(itemId, quantity);
+        this.items = data.items;
+        this.total_items = data.total_items;
+        this.subtotal = data.subtotal;
       } catch (error) {
+        const originalItem = this.items.find(i => i.id === itemId);
+        if (originalItem) {
+          originalItem.quantity = oldQty;
+        }
         this.subtotal = oldTotal;
-        item.quantity = oldQty;
+        this.total_items = oldItemCount;
         console.error(error);
       }
     },
@@ -147,24 +155,7 @@ export const useCartStore = defineStore('cart', {
       
       const newQuantity = item.quantity + 1;
       
-      const oldQuantity = item.quantity;
-      item.quantity = newQuantity;
-      this.total_items += 1;
-      this.subtotal += item.product_price;  // Narxni ham yangilash
-      
-      try {
-        const data = await apiService.updateCartItem(item.id, newQuantity);
-        
-        this.items = data.items;
-        this.total_items = data.total_items;
-        this.subtotal = data.subtotal;
-        
-      } catch (error) {
-        item.quantity = oldQuantity;
-        this.total_items -= 1;
-        this.subtotal -= item.product_price;
-        console.error(error);
-      }
+      await this.updateQuantity(item.id, newQuantity);
     },
 
     async decrementQuantity(productId) {
@@ -173,25 +164,7 @@ export const useCartStore = defineStore('cart', {
       
       if (item.quantity > 1) {
         const newQuantity = item.quantity - 1;
-        
-        const oldQuantity = item.quantity;
-        const oldTotal = this.subtotal;
-        
-        item.quantity = newQuantity;
-        this.total_items -= 1;
-        this.subtotal -= item.product_price;
-        
-        try {
-          const data = await apiService.updateCartItem(item.id, newQuantity);
-          this.items = data.items;
-          this.total_items = data.total_items;
-          this.subtotal = data.subtotal;
-        } catch (error) {
-          item.quantity = oldQuantity;
-          this.total_items += 1;
-          this.subtotal = oldTotal;
-          console.error(error);
-        }
+        await this.updateQuantity(item.id, newQuantity);
       } else {
         await this.removeItem(item.id);
       }
