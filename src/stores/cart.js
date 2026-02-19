@@ -12,17 +12,14 @@ export const useCartStore = defineStore('cart', {
   }),
 
   getters: {
-    // ✅ Frontend hisob (backend bilan bir xil)
     itemCount: (state) => state.total_items,
     totalPrice: (state) => state.subtotal,
     cartItems: (state) => state.items,
 
-    // ✅ Mahsulot savatdami?
     isInCart: (state) => (productId) => {
       return state.items.some(item => item.product_id === productId);
     },
 
-    // ✅ Mahsulot miqdori
     getItemQuantity: (state) => (productId) => {
       const item = state.items.find(item => item.product_id === productId);
       return item ? item.quantity : 0;
@@ -30,7 +27,6 @@ export const useCartStore = defineStore('cart', {
   },
 
   actions: {
-    // ✅ GET /cart/
     async fetchCart() {
       this.loading = true;
       this.error = null;
@@ -48,7 +44,6 @@ export const useCartStore = defineStore('cart', {
       }
     },
 
-    // ✅ POST /cart/add_item/
     async addItem(productId, quantity = 1) {
       this.loading = true;
       try {
@@ -56,17 +51,14 @@ export const useCartStore = defineStore('cart', {
         this.items = data.items;
         this.total_items = data.total_items;
         this.subtotal = data.subtotal;
-        // telegram.hapticFeedback('success');
       } catch (error) {
         this.error = 'Mahsulot qo\'shilmadi';
         console.error(error);
-        // telegram.hapticFeedback('error');
       } finally {
         this.loading = false;
       }
     },
 
-    // ✅ PATCH /cart/update_item/
     async updateQuantity(itemId, quantity) {
       try {
         const data = await apiService.updateCartItem(itemId, quantity);
@@ -80,36 +72,60 @@ export const useCartStore = defineStore('cart', {
       }
     },
 
-    // ✅ DELETE /cart/remove_item/?item_id=
     async removeItem(itemId) {
-      try {
-        const data = await apiService.removeCartItem(itemId);
-        this.items = data.items;
-        this.total_items = data.total_items;
-        this.subtotal = data.subtotal;
+        const itemIndex = this.items.findIndex(item => item.id === itemId);
+        if (itemIndex === -1) return;
         
-        telegram.hapticFeedback('light');
-      } catch (error) {
-        console.error(error);
-        telegram.hapticFeedback('error');
-      }
+        const removedItem = this.items[itemIndex];
+        const oldTotal = this.subtotal;
+        const oldItemCount = this.total_items;
+        
+        this.items.splice(itemIndex, 1);
+        this.total_items -= removedItem.quantity;
+        this.subtotal -= removedItem.product_price * removedItem.quantity;
+        
+        try {
+          const data = await apiService.removeCartItem(itemId);
+          this.items = data.items;
+          this.total_items = data.total_items;
+          this.subtotal = data.subtotal;
+        } catch (error) {
+          // Rollback
+          this.items.splice(itemIndex, 0, removedItem);
+          this.total_items = oldItemCount;
+          this.subtotal = oldTotal;
+          console.error(error);
+        }
     },
 
-    // ✅ POST /cart/clear/
     async clearCart() {
+      const oldItems = [...this.items]; 
+      const oldTotal = this.subtotal;
+      const oldCount = this.total_items;
+      
+      this.items = [];
+      this.total_items = 0;
+      this.subtotal = 0;
+      
       try {
         const data = await apiService.clearCart();
-        this.items = data.items;
-        this.total_items = data.total_items;
-        this.subtotal = data.subtotal;
+        
+        this.items = data.items || [];
+        this.total_items = data.total_items || 0;
+        this.subtotal = data.subtotal || 0;
+        
         telegram.hapticFeedback('success');
+        
       } catch (error) {
-        console.error(error);
+        this.items = oldItems;
+        this.total_items = oldCount;
+        this.subtotal = oldTotal;
+        
+        console.error('Savatni tozalashda xatolik:', error);
         telegram.hapticFeedback('error');
       }
     },
 
-    // ✅ Helper: ID bo'yicha o'chirish (item_id kerak)
     async removeByProductId(productId) {
       const item = this.items.find(item => item.product_id === productId);
       if (item) {
@@ -117,38 +133,62 @@ export const useCartStore = defineStore('cart', {
       }
     },
 
-    // ✅ Helper: ID bo'yicha yangilash
-    // async updateByProductId(productId, quantity) {
-    //   const item = this.items.find(item => item.product_id === productId);
-    //   if (item) {
-    //     if (quantity <= 0) {
-    //       await this.removeItem(item.id);
-    //     } else {
-    //       await this.updateQuantity(item.id, quantity);
-    //     }
-    //   }
-    // },
-
-    // ✅ Increment/Decrement
     async incrementQuantity(productId) {
       const item = this.items.find(item => item.product_id === productId);
-      if (item) {
-        await this.updateQuantity(item.id, item.quantity + 1);
+      if (!item) return;
+      
+      const newQuantity = item.quantity + 1;
+      
+      const oldQuantity = item.quantity;
+      item.quantity = newQuantity;
+      this.total_items += 1;
+      this.subtotal += item.product_price;  // Narxni ham yangilash
+      
+      try {
+        const data = await apiService.updateCartItem(item.id, newQuantity);
+        
+        this.items = data.items;
+        this.total_items = data.total_items;
+        this.subtotal = data.subtotal;
+        
+      } catch (error) {
+        item.quantity = oldQuantity;
+        this.total_items -= 1;
+        this.subtotal -= item.product_price;
+        console.error(error);
       }
     },
 
     async decrementQuantity(productId) {
       const item = this.items.find(item => item.product_id === productId);
-      if (item) {
-        if (item.quantity > 1) {
-          await this.updateQuantity(item.id, item.quantity - 1);
-        } else {
-          await this.removeItem(item.id);
+      if (!item) return;
+      
+      if (item.quantity > 1) {
+        const newQuantity = item.quantity - 1;
+        
+        const oldQuantity = item.quantity;
+        const oldTotal = this.subtotal;
+        
+        item.quantity = newQuantity;
+        this.total_items -= 1;
+        this.subtotal -= item.product_price;
+        
+        try {
+          const data = await apiService.updateCartItem(item.id, newQuantity);
+          this.items = data.items;
+          this.total_items = data.total_items;
+          this.subtotal = data.subtotal;
+        } catch (error) {
+          item.quantity = oldQuantity;
+          this.total_items += 1;
+          this.subtotal = oldTotal;
+          console.error(error);
         }
+      } else {
+        await this.removeItem(item.id);
       }
     },
 
-    // ✅ Order uchun ma'lumot
     getOrderData() {
       return {
         items: this.items.map(item => ({
