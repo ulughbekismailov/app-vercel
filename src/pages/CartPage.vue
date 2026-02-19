@@ -61,7 +61,7 @@
         <div class="space-y-3">
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
             <span>Subtotal ({{ itemCount }} items)</span>
-            <span>${{ totalPrice.toFixed(2) }}</span>
+            <span>${{ totalPrice }}</span>
           </div>
 
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
@@ -74,7 +74,7 @@
               Total
             </span>
             <span class="text-2xl font-bold text-telegram-blue">
-              ${{ totalPrice.toFixed(2) }}
+              ${{ totalPrice }}
             </span>
           </div>
         </div>

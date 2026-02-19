@@ -59,19 +59,6 @@ export const useCartStore = defineStore('cart', {
       }
     },
 
-    async updateQuantity(itemId, quantity) {
-      try {
-        const data = await apiService.updateCartItem(itemId, quantity);
-        this.items = data.items;
-        this.total_items = data.total_items;
-        this.subtotal = data.subtotal;
-        telegram.hapticFeedback('selection');
-      } catch (error) {
-        console.error(error);
-        telegram.hapticFeedback('error');
-      }
-    },
-
     async removeItem(itemId) {
         const itemIndex = this.items.findIndex(item => item.id === itemId);
         if (itemIndex === -1) return;
@@ -130,6 +117,27 @@ export const useCartStore = defineStore('cart', {
       const item = this.items.find(item => item.product_id === productId);
       if (item) {
         await this.removeItem(item.id);
+      }
+    },
+
+
+    async updateQuantity(itemId, quantity) {
+      const item = this.items.find(i => i.id === itemId);
+      if (!item) return;
+      
+      const oldQty = item.quantity;
+      const oldTotal = this.subtotal;
+
+      this.subtotal += item.product_price * (quantity - oldQty);
+      item.quantity = quantity;
+      this.total_items += (quantity - oldQty);
+      
+      try {
+        const data = await apiService.updateCartItem(itemId, quantity);
+      } catch (error) {
+        this.subtotal = oldTotal;
+        item.quantity = oldQty;
+        console.error(error);
       }
     },
 
