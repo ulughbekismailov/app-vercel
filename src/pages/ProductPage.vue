@@ -121,7 +121,7 @@
                 v-for="i in 5" 
                 :key="i"
                 class="w-4 h-4"
-                :class="i <= 5 ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
+                :class="i <= productRating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -129,7 +129,7 @@
               </svg>
             </div>
             <span class="text-sm text-gray-600 dark:text-gray-400">
-               5  out of 5
+               {{productRating}}  out of 5
             </span>
           </div>
 
@@ -258,6 +258,7 @@ const showDetails = ref(false);
 
 const loading = computed(() => productStore.loading);
 const product = computed(() => productStore.currentProduct);
+const productRating = computed(() => Math.floor(Math.random() * 2) + 4);
 
 const images = computed(() => {
   if (!product.value) return [];

@@ -13,7 +13,7 @@
     <!-- Product Info -->
     <div class="flex-1 min-w-0">
       <h3 class="font-semibold text-sm text-gray-900 dark:text-white truncate mb-1">
-        {{ item.name }}
+        {{ item.product_name }}
       </h3>
       
       <div class="flex items-center justify-between">
@@ -22,12 +22,12 @@
             ${{ item.product_price }}
           </p>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Total: ${{ (item.product_price * item.quantity) }}
+            Total:{{ item.quantity }} × {{ item.product_price }} = {{ (item.product_price * item.quantity).toFixed(2) }}
           </p>
         </div>
 
         <!-- Quantity Controls -->
-        <div class="flex items-center gap-2">
+        <!-- <div class="flex items-center gap-2">
           <button
             @click="decrementQuantity"
             class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center transition-all duration-200 active:scale-90"
@@ -86,7 +86,7 @@
               />
             </svg>
           </button>
-        </div>
+        </div> -->
       </div>
 
       <!-- Stock Warning -->
