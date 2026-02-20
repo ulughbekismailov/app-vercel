@@ -4,10 +4,10 @@
     <header class="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 animate-slide-up">
       <div class="app-container px-4 py-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white font-display">
-          Shopping Cart
+          {{ userStore.t('shoppingCart') }}
         </h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {{ itemCount }} {{ itemCount === 1 ? 'item' : 'items' }} in cart
+          {{ itemCount }} {{ userStore.t('countInCart') }}
         </p>
       </div>
     </header>
@@ -22,16 +22,16 @@
           </svg>
         </div>
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Your cart is empty
+          {{ userStore.t('yourCartIsEmpty') }}
         </h2>
         <p class="text-gray-500 dark:text-gray-400 mb-6">
-          Start shopping to add items to your cart
+          {{ userStore.t('startShopping') }}
         </p>
         <button
           @click="goToHome"
           class="btn-primary inline-block"
         >
-          Browse Products
+          {{ userStore.t('browseProducts') }}
         </button>
       </div>
 
@@ -48,30 +48,30 @@
           @click="confirmClearCart"
           class="w-full py-3 text-red-500 font-medium text-sm rounded-xl border-2 border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-200 active:scale-98"
         >
-          Clear All Items
+          {{ userStore.t('clearAllItems') }}
         </button>
       </div>
 
       <!-- Order Summary -->
       <div v-if="cartItems.length > 0" class="mt-6 card p-4 animate-slide-up stagger-1">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Order Summary
+          {{ userStore.t('orderSummary') }}
         </h3>
 
         <div class="space-y-3">
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
-            <span>Subtotal ({{ itemCount }} items)</span>
+            <span>{{ userStore.t('subtotal') }} ({{ itemCount }})</span>
             <span>${{ totalPrice }}</span>
           </div>
 
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
-            <span>Shipping</span>
-            <span class="text-green-600 dark:text-green-400">Free</span>
+            <span>{{ userStore.t('shipping') }}</span>
+            <span class="text-green-600 dark:text-green-400">{{ userStore.t('shippingFree') }}</span>
           </div>
 
           <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between items-center">
             <span class="text-xl font-bold text-gray-900 dark:text-white">
-              Total
+              {{ userStore.t('total') }}
             </span>
             <span class="text-2xl font-bold text-telegram-blue">
               ${{ totalPrice }}
@@ -91,7 +91,7 @@
           @click="proceedToCheckout"
           class="btn-primary w-full flex items-center justify-center gap-2"
         >
-          <span>Proceed to Checkout</span>
+          <span>{{ userStore.t('proceedToCheckout') }}</span>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
@@ -108,10 +108,12 @@ import { computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import CartItem from '@/components/CartItem.vue';
+import { useUserStore } from '@/stores/user';
 import telegram from '@/services/telegram';
 
 const router = useRouter();
 const cartStore = useCartStore();
+const userStore = useUserStore();
 
 const cartItems = computed(() => cartStore.items);
 const itemCount = computed(() => cartStore.total_items);

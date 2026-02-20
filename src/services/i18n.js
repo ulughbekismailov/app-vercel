@@ -11,6 +11,7 @@ export const translations = {
     // Korzina bilan bog'liq
     shoppingCart: 'Корзина',
     inCart: 'В корзине',
+    countInCart: 'товара в корзине',
     yourCartIsEmpty: 'Ваша корзина пуста',
     startShopping: 'Начать покупки',
     clearAllItems: 'Очистить все',
@@ -20,11 +21,19 @@ export const translations = {
     subtotal: 'Подытог',
     total: 'Итого',
     shipping: 'Доставка',
+    shippingFree: 'Бесплатно',
     proceedToCheckout: 'Перейти к оформлению',
+
+    noOrders: "Пока нет заказов",
+    orderHistoryInfo: "История ваших заказов появится здесь",
+    startShopping: "Начать покупки",
     
     // Mahsulotlar
     browseProducts: 'Просмотр товаров',
     yourSavedProducts: 'Сохраненные товары',
+    favoritesIsEmpty: 'Пока нет избранных товаров',
+    FavoritesStart: 'Начните добавлять товары в избранное',
+    
     
     // Buyurtma tarixi
     orderHistory: 'История заказов',
@@ -53,6 +62,7 @@ export const translations = {
     // Savat bilan bog'liq
     shoppingCart: 'Savat',
     inCart: 'Savatda',
+    countInCart: 'ta mahsulot savatda',
     yourCartIsEmpty: 'Savat bo\'sh',
     startShopping: 'Xaridni boshlash',
     clearAllItems: 'Barchasini tozalash',
@@ -62,11 +72,19 @@ export const translations = {
     subtotal: 'Oraliq summa',
     total: 'Jami',
     shipping: 'Yetkazib berish',
+    shippingFree: 'Tekin',
     proceedToCheckout: 'Rasmiylashtirishga o\'tish',
+
+    noOrders: "Hozircha buyurtmalar yo‘q",
+    orderHistoryInfo: "Buyurtmalar tarixi shu yerda ko‘rinadi",
+    startShopping: "Xarid qilishni boshlang",
     
     // Mahsulotlar
     browseProducts: 'Mahsulotlarni ko\'rish',
     yourSavedProducts: 'Saqlangan mahsulotlar',
+    favoritesIsEmpty: 'Hozircha sevimlilar yo\'q',
+    FavoritesStart: 'Mahsulotlarni sevimlilarga qo‘shishni boshlang',
+
     
     // Buyurtma tarixi
     orderHistory: 'Buyurtmalar tarixi',
@@ -95,6 +113,7 @@ export const translations = {
     // Cart related
     shoppingCart: 'Shopping Cart',
     inCart: 'In Cart',
+    countInCart: 'item)s in cart',
     yourCartIsEmpty: 'Your cart is empty',
     startShopping: 'Start shopping',
     clearAllItems: 'Clear all items',
@@ -104,11 +123,18 @@ export const translations = {
     subtotal: 'Subtotal',
     total: 'Total',
     shipping: 'Shipping',
+    shippingFree: 'Free',
     proceedToCheckout: 'Proceed to Checkout',
+
+    noOrders: "No orders yet",
+    orderHistoryInfo: "Your order history will appear here",
+    startShopping: "Start Shopping",
     
     // Products
     browseProducts: 'Browse Products',
     yourSavedProducts: 'Your saved products',
+    favoritesIsEmpty: 'No favorites yet',
+    FavoritesStart: 'Start adding products to your favorites',
     
     // Order History
     orderHistory: 'Order History',

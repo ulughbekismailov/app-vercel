@@ -4,10 +4,10 @@
     <header class="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 animate-slide-up">
       <div class="app-container px-4 py-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white font-display">
-          Favorites
+          {{ userStore.t('favorites') }}
         </h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {{ favoriteProducts.length }} {{ favoriteProducts.length === 1 ? 'item' : 'items' }}
+          Qty:{{ favoriteProducts.length }}
         </p>
       </div>
     </header>
@@ -21,16 +21,16 @@
           </svg>
         </div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          No favorites yet
+          {{ userStore.t('favoritesIsEmpty') }}
         </h3>
         <p class="text-gray-500 dark:text-gray-400 mb-6">
-          Start adding products to your favorites
+          {{ userStore.t('FavoritesStart') }}
         </p>
         <button
           @click="$router.push('/')"
           class="btn-primary inline-block"
         >
-          Browse Products
+          {{ userStore.t('browseProducts') }}
         </button>
       </div>
 
@@ -55,11 +55,13 @@ import { useProductStore } from '@/stores/product';
 import ProductCard from '@/components/ProductCard.vue';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
+import { useUserStore } from '@/stores/user';
 
 
 const router = useRouter();
 const productStore = useProductStore();
 const favoriteStore = useFavoriteStore();
+const userStore = useUserStore()
 
 const favoriteProducts = computed(() => {
   const favoriteIds = favoriteStore.likedIds;

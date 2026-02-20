@@ -4,10 +4,10 @@
     <header class="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 animate-slide-up">
       <div class="app-container px-4 py-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white font-display">
-          Order History
+          {{ userStore.t('orderHistory') }}
         </h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Track your orders
+          {{ userStore.t('trackYourOrders') }}
         </p>
       </div>
     </header>
@@ -26,16 +26,16 @@
           </svg>
         </div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          No orders yet
+          {{ userStore.t('noOrders') }}
         </h3>
         <p class="text-gray-500 dark:text-gray-400 mb-6">
-          Your order history will appear here
+          {{ userStore.t('orderHistoryInfo') }}
         </p>
         <button
           @click="$router.push('/')"
           class="btn-primary inline-block"
         >
-          Start Shopping
+          {{ userStore.t('startShopping') }}
         </button>
       </div>
 
@@ -60,7 +60,6 @@
               :class="getStatusClass(order.status)"
             >
               {{ order.status }}
-                <!-- getStatusText(order.status) -->
             </span>
           </div>
 
@@ -77,7 +76,7 @@
               @click="viewOrderDetails(order.id)"
               class="btn-secondary text-sm"
             >
-              View Details
+              {{ userStore.t('viewDetails') }}
             </button>
           </div>
         </div>
@@ -89,13 +88,17 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user'
 import { useOrderStore } from '@/stores/order';
 import telegram from '@/services/telegram';
 
+
 const router = useRouter();
 const orderStore = useOrderStore();
+const userStore = useUserStore()
 
-// const loading = computed(() => userStore.loading);
+
+const loading = computed(() => userStore.loading);
 const orders = computed(() => orderStore.orders);
 
 
@@ -120,19 +123,9 @@ const getStatusClass = (status) => {
   return classes[status] || classes.Processing;
 };
 
-const getStatusText = (status) => {
-  const texts = {
-    processing: 'Processing',
-    shipped: 'Shipped',
-    delivered: 'Delivered',
-    cancelled: 'Cancelled'
-  };
-  return texts[status] || 'Unknown';
-};
-
 const viewOrderDetails = (orderId) => {
   telegram.hapticFeedback('light');
-  telegram.showAlert(`Order #${orderId} details would be shown here`);
+  telegram.showAlert(`Order #${orderId} Tez orada bu yerda batafsil ko'rishingiz mumkun!`);
 };
 
 onMounted(async() => {
