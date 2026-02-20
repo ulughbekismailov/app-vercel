@@ -26,7 +26,7 @@
           </p>
         </div>
 
-        <!-- Quantity Controls -->
+        <!-- Quantity Controls DISABLED-------------------------------------------------------------->
         <!-- <div class="flex items-center gap-2">
           <button
             @click="decrementQuantity"
@@ -87,6 +87,8 @@
             </svg>
           </button>
         </div> -->
+        <!-- Quantity Controls DISABLED-------------------------------------------------------------->
+         
       </div>
 
       <!-- Stock Warning -->
@@ -133,13 +135,13 @@ const props = defineProps({
 
 const cartStore = useCartStore();
 
-const incrementQuantity = () => {
-  cartStore.incrementQuantity(props.item.product_id);
-};
+// const incrementQuantity = () => {
+//   cartStore.incrementQuantity(props.item.product_id);
+// };
 
-const decrementQuantity = () => {
-  cartStore.decrementQuantity(props.item.product_id);
-};
+// const decrementQuantity = () => {
+//   cartStore.decrementQuantity(props.item.product_id);
+// };
 
 const removeItem = () => {
   cartStore.removeItem(props.item.id);

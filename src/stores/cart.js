@@ -63,14 +63,6 @@ export const useCartStore = defineStore('cart', {
         const itemIndex = this.items.findIndex(item => item.id === itemId);
         if (itemIndex === -1) return;
         
-        const removedItem = this.items[itemIndex];
-        const oldTotal = this.subtotal;
-        const oldItemCount = this.total_items;
-        
-        this.items.splice(itemIndex, 1);
-        this.total_items -= removedItem.quantity;
-        this.subtotal -= removedItem.product_price * removedItem.quantity;
-        
         try {
           const data = await apiService.removeCartItem(itemId);
           this.items = data.items;
