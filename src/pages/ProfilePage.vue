@@ -162,9 +162,9 @@ import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useOrderStore } from '@/stores/order';
 
-const favoriteStore = useFavoriteStore()
+const favoriteStore = useFavoriteStore();
 const userStore = useUserStore();
-const orderStore = useOrderStore()
+const orderStore = useOrderStore();
 
 const orderCount = computed(()=> orderStore.orders.length)
 const selectedLanguage = ref(userStore.language);
@@ -174,16 +174,11 @@ const user = computed(() => userStore.user);
 console.log(user);
 
 
-// const userName = computed(() => userStore.userName);
-// const userInitials = computed(() => userStore.userInitials);
-// const isDarkMode = computed(() => userStore.isDarkMode);
+const isDarkMode = computed(() => userStore.isDarkMode);
 
-// const favorites = computed(() => userStore.favorites);
-// const orders = computed(() => userStore.orders);
-
-// const toggleTheme = () => {
-//   userStore.toggleTheme();
-// };
+const toggleTheme = () => {
+  userStore.toggleTheme();
+};
 
 // const changeLanguage = () => {
 //   userStore.setLanguage(selectedLanguage.value);
