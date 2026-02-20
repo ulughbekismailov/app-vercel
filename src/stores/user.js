@@ -1,16 +1,27 @@
 import { defineStore } from 'pinia';
 import apiService from '@/services/api';
 import telegram from '@/services/telegram';
+import { translations } from '@/services/i18n';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
     loading: false,
     error: null,
-    theme: localStorage.getItem('theme') || 'light'
+    theme: localStorage.getItem('theme') || 'light',
+    language: localStorage.getItem('language') || 'ru'
   }),
 
   getters: {
+
+    t: (state) => (key) => {
+      return translations[state.language]?.[key] || key;
+    },
+
+
+    currentLanguage: (state) => state.language,
+    userTelegramLanguage: (state) => state.user?.language_code || 'ru',
+
     userId: (state) => state.user?.telegram_id || state.user?.id,
     userName: (state) => state.user?.first_name || state.user?.username || 'User',
     userFullName: (state) => {
@@ -33,7 +44,13 @@ export const useUserStore = defineStore('user', {
       try {
         const data = await apiService.getCurrentUser();
         this.user = data;
-        console.log('✅ User data fetched:', this.userName);
+
+        if(data?.language_code){
+          if(!localStorage.getItem('userLanguageSet')){
+            this.setLanguage(data.language_code);
+          }
+        }
+        this.initLanguage();
         return data;
       } catch (error) {
         console.error('Failed to fetch user:', error);
@@ -54,6 +71,39 @@ export const useUserStore = defineStore('user', {
         throw error;
       } finally {
         this.loading = false;
+      }
+    },
+
+
+    setLanguage(lang) {
+      this.language = lang;
+      localStorage.setItem('language', lang);
+      localStorage.setItem('userLanguageSet', 'true');
+      
+      document.documentElement.lang = lang;
+      
+      console.log('🌍 Language set to:', lang);
+    },
+
+    resetToTelegramLanguage() {
+      localStorage.removeItem('userLanguageSet');
+      if (this.user?.language_code) {
+        this.setLanguage(this.user.language_code);
+      }
+    },
+
+
+    initLanguage() {
+      const userSet = localStorage.getItem('userLanguageSet');  // 'true'
+      const savedLang = localStorage.getItem('language');        // 'uz'
+      
+      if (userSet && savedLang) {
+        // ✅ User tanlagan til ishlatiladi ('uz')
+        this.setLanguage(savedLang);  // 'uz' qo'llanadi
+      } else if (this.user?.language_code) {
+        // Telegram tili ishlatiladi
+        this.setLanguage(this.user.language_code);  // 'ru'
+        localStorage.removeItem('userLanguageSet'); // Flag o'chiriladi
       }
     },
 

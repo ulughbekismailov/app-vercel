@@ -304,12 +304,11 @@ const addToCart = async (event) => {
     isInCart.value = true;
     
     try {
-      await cartStore.addItem(product.value.id, quantity.value);
-      telegram.hapticFeedback('success');
-      
       setTimeout(() => {
         router.push('/cart');
-      }, 250);
+      }, 150);
+      await cartStore.addItem(product.value.id, quantity.value);
+      telegram.hapticFeedback('success');
       
     } catch (error) {
       isInCart.value = false;

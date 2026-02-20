@@ -27,7 +27,7 @@
             {{orderCount}}
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
-            Orders
+            {{ userStore.t('orders') }}
           </div>
         </div>
         <div class="card p-4 text-center">
@@ -35,7 +35,7 @@
             {{favoritesCount}}
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
-            Favorites
+            {{ userStore.t('favorites') }}
           </div>
         </div>
       </div>
@@ -54,8 +54,8 @@
               </svg>
             </div>
             <div>
-              <p class="font-medium text-gray-900 dark:text-white">Order History</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">View your past orders</p>
+              <p class="font-medium text-gray-900 dark:text-white">{{ userStore.t('orderHistory') }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ userStore.t('viewYourPastOrders') }}</p>
             </div>
           </div>
           <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,8 +77,8 @@
               </svg>
             </div>
             <div>
-              <p class="font-medium text-gray-900 dark:text-white">Favorites</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Your saved products</p>
+              <p class="font-medium text-gray-900 dark:text-white">{{ userStore.t('favorites') }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ userStore.t('yourSavedProducts') }}</p>
             </div>
           </div>
           <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +90,7 @@
       <!-- Settings -->
       <div class="card overflow-hidden animate-slide-up stagger-3">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="font-semibold text-gray-900 dark:text-white">Settings</h2>
+          <h2 class="font-semibold text-gray-900 dark:text-white">{{ userStore.t('settings') }}</h2>
         </div>
 
         <!-- Theme Toggle -->
@@ -102,7 +102,7 @@
               </svg>
             </div>
             <div>
-              <p class="font-medium text-gray-900 dark:text-white">Theme</p>
+              <p class="font-medium text-gray-900 dark:text-white">{{ userStore.t('theme') }}</p>
               <p class="text-xs text-gray-500 dark:text-gray-400">{{ isDarkMode ? 'Dark' : 'Light' }} mode</p>
             </div>
           </div>
@@ -127,8 +127,8 @@
               </svg>
             </div>
             <div>
-              <p class="font-medium text-gray-900 dark:text-white">Language</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Choose your preferred language</p>
+              <p class="font-medium text-gray-900 dark:text-white">{{ userStore.t('language') }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ userStore.t('chooseYourPreferredLanguage') }}</p>
             </div>
           </div>
           <select
@@ -138,6 +138,7 @@
           >
             <option value="ru">Русский</option>
             <option value="uz">O'zbek</option>
+            <option value="en">English</option>
           </select>
         </div>
       </div>
@@ -167,11 +168,11 @@ const userStore = useUserStore();
 const orderStore = useOrderStore();
 
 const orderCount = computed(()=> orderStore.orders.length)
-const selectedLanguage = ref(userStore.language);
 const favoritesCount = computed(()=> favoriteStore.likedIds.size)
 const user = computed(() => userStore.user);
 
-console.log(user);
+const selectedLanguage = ref(userStore.language);
+
 
 
 const isDarkMode = computed(() => userStore.isDarkMode);
@@ -180,14 +181,20 @@ const toggleTheme = () => {
   userStore.toggleTheme();
 };
 
-// const changeLanguage = () => {
-//   userStore.setLanguage(selectedLanguage.value);
-//   telegram.hapticFeedback('success');
-//   telegram.showAlert('Language changed successfully!');
-// };
+const changeLanguage = () => {
+  userStore.setLanguage(selectedLanguage.value);
+  telegram.hapticFeedback('success');
+  telegram.showAlert('Language changed successfully!');
+};
 
 onMounted(async() => {
   await favoriteStore.loadLikes();
   await orderStore.fetchOrders();
+
+  if (!localStorage.getItem('userLanguageSet') && user.value?.language_code) {
+    selectedLanguage.value = user.value.language_code;
+  } else {
+    selectedLanguage.value = userStore.language;
+  }
 });
 </script>
