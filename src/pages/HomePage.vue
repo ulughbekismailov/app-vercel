@@ -92,7 +92,7 @@
 
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useCartStore } from '@/stores/cart';
@@ -161,16 +161,30 @@ const toggleTheme = () => {
   userStore.toggleTheme();
 };
 
+
 onMounted(async () => {
-  await userStore.fetchCurrentUser();
-  
-  await productStore.fetchCategories();
-  
-  await productStore.fetchProducts();
-  
-  await cartStore.fetchCart();
+  try {
+    await Promise.all([
+      productStore.fetchCategories(),
+      productStore.fetchProducts(),
+      favoriteStore.loadLikes()
+    ]);
+    
+    Promise.all([
+      userStore.fetchCurrentUser(),   
+      cartStore.fetchCart()
+    ]).then(() => {
+      console.log('Ikkinchi darajali malumotlar yuklandi:UI');
+    });
 
-  await favoriteStore.loadLikes();
+    selectedCategory.value = productStore.selectedCategory;
+    
+  } catch (error) {
+    console.error('Xatolik:', error);
+  }
+});
 
+watch(() => productStore.selectedCategory, (newVal) => {
+  selectedCategory.value = newVal;
 });
 </script>

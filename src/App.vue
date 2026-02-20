@@ -27,48 +27,35 @@ const productStore = useProductStore()
 
 
 onMounted(async () => {
-
   telegram.init();
   console.log('✅ Telegram WebApp initialized');
-  console.log('Platform:', telegram.getPlatform(), 'Version:',telegram.getVersion());
   
-
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
-    userStore.theme = savedTheme;
+    userStore.setTheme(savedTheme);
   } else if (telegram.isInTelegram()) {
     const telegramTheme = telegram.isDarkMode() ? 'dark' : 'light';
-    userStore.theme = telegramTheme;
+    userStore.setTheme(telegramTheme); 
   }
-  
-  userStore.applyTheme();
   
   new TelegramThemeService(userStore);
 
   try {
     await Promise.all([
-      productStore.fetchProducts(),
       userStore.fetchCurrentUser(),
       favoriteStore.loadLikes(),
       cartStore.fetchCart()
     ]);
     
-    console.log('✅ User data loaded');
-
-
+    console.log('✅ Barcha ma\'lumotlar yuklandi');
   } catch (error) {
     console.error('Error loading initial data:', error);
-
   }
 });
 
-
-
 watch(() => userStore.theme, (newTheme) => {
-  userStore.applyTheme();
   console.log('Theme changed to:', newTheme);
 }, { immediate: false });
-
 </script>
 
 <style>
