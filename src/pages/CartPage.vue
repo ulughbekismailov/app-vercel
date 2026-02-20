@@ -60,7 +60,7 @@
 
         <div class="space-y-3">
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
-            <span>{{ userStore.t('subtotal') }} ({{ itemCount }})</span>
+            <span>{{ userStore.t('subtotal') }} (Qty:{{ itemCount }})</span>
             <span>${{ totalPrice }}</span>
           </div>
 

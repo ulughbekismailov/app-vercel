@@ -31,7 +31,7 @@
         readonly
       />
       <p v-if="showLabel" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Quantity
+        Qty
       </p>
     </div>
 

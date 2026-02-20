@@ -129,7 +129,7 @@
               </svg>
             </div>
             <span class="text-sm text-gray-600 dark:text-gray-400">
-               {{productRating}}  out of 5
+               {{productRating}} {{ userStore.t('rating') }}
             </span>
           </div>
 
@@ -140,7 +140,7 @@
               class="inline-flex items-center gap-2 text-sm text-green-600 dark:text-green-400"
             >
               <span class="w-2 h-2 bg-green-600 rounded-full"></span>
-              In Stock
+              {{ userStore.t('inStock') }}
             </span>
             <span 
               v-else
@@ -155,7 +155,7 @@
         <!-- Description -->
         <div class="card p-4 animate-slide-up stagger-1">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            Description
+            {{ userStore.t('description') }}
           </h2>
           <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
             {{ product.description }}
@@ -163,7 +163,8 @@
         </div>
 
         <!-- Expandable Details -->
-        <div class="card overflow-hidden animate-slide-up stagger-2">
+        <div v-if="!product.is_active"
+         class="card overflow-hidden animate-slide-up stagger-2">
           <button
             @click="showDetails = !showDetails"
             class="w-full px-4 py-4 flex items-center justify-between"
@@ -185,25 +186,25 @@
           <transition name="expand">
             <div v-show="showDetails" class="px-4 pb-4">
               <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                Doim biz bilan bo'ling!!!
+                (DEV------------------TG: @Ulughbek_Ismailov)
               </p>
             </div>
           </transition>
         </div>
 
         <!-- Quantity Selector -->
-        <div class="card p-4 animate-slide-up stagger-3">
+        <div class="card p-4 animate-slide-up stagger-3" v-if="!isInCart" >
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Quantity
+            {{ userStore.t('quantity') }}
           </h2>
-          <QuantitySelector v-if="!isInCart" v-model="quantity" :min="1" :max="99" />
+          <QuantitySelector v-model="quantity" :min="1" :max="99" />
         </div>
       </div>
     </div>
 
     <!-- Error State -->
     <div v-else class="text-center py-20">
-      <p class="text-gray-500 dark:text-gray-400">Product not found</p>
+      <p class="text-gray-500 dark:text-gray-400">{{ userStore.t('productNotFound') }} :)</p>
     </div>
 
     <!-- Sticky Add to Cart Button -->
@@ -213,7 +214,7 @@
     >
       <div class="app-container flex gap-3 pb-4">
         <div class="flex-1">
-          <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Price</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ userStore.t('totalPrice') }}</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">
             ${{ totalPrice }}
           </p>
@@ -226,7 +227,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          <span>{{ isInCart ? 'Go to Cart' : 'Add to Cart' }}</span>
+          <span>{{ isInCart ? userStore.t('goToCart') : userStore.t('addToCart') }}</span>
         </button>
       </div>
     </div>
@@ -241,6 +242,7 @@ import { useCartStore } from '@/stores/cart';
 import QuantitySelector from '@/components/QuantitySelector.vue';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
+import { useUserStore } from '@/stores/user';
 
 
 
@@ -249,7 +251,7 @@ const route = useRoute();
 const router = useRouter();
 const productStore = useProductStore();
 const cartStore = useCartStore();
-
+const userStore = useUserStore()
 const favoriteStore = useFavoriteStore()
 
 const currentImageIndex = ref(0);

@@ -22,7 +22,7 @@
             ${{ item.product_price }}
           </p>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Total:{{ item.quantity }} × {{ item.product_price }} = {{ (item.product_price * item.quantity).toFixed(2) }}
+            {{ userStore.t('total') }}:{{ item.quantity }} × {{ item.product_price }} = {{ (item.product_price * item.quantity).toFixed(2) }}
           </p>
         </div>
 
@@ -97,7 +97,7 @@
           class="inline-flex items-center gap-2 text-sm text-green-600 dark:text-green-400"
           >
         <span class="w-2 h-2 bg-green-600 rounded-full"></span>
-        In Cart
+        {{ userStore.t('inCart') }}
       </span>
     </div>
 
@@ -125,6 +125,9 @@
 
 <script setup>
 import { useCartStore } from '@/stores/cart';
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore()
 
 const props = defineProps({
   item: {

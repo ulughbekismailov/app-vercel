@@ -2,7 +2,7 @@
 export const translations = {
   ru: {
     // Asosiy navigatsiya
-    search: 'Поиск',
+    search: 'Поиск...',
     cart: 'Корзина',
     orders: 'Заказы',
     favorites: 'Избранное',
@@ -34,7 +34,39 @@ export const translations = {
     favoritesIsEmpty: 'Пока нет избранных товаров',
     FavoritesStart: 'Начните добавлять товары в избранное',
     
+
+    // Product 
+    inStock: "В наличии",
+    description: "Описание",
+    quantity: "Количество",
+    rating: "из 5",
+    totalPrice: "Общая стоимость",
+    productNotFound: "Товар не найден",
+    goToCart: "Перейти в корзину",
+    addToCart: "Добавить в корзину",
+
     
+    //Order
+
+    checkout: "Оформление заказа",
+    completeOrder: "Завершить заказ",
+    customerInformation: "Информация о клиенте",
+    fullName: "Полное имя",
+    phoneNumber: "Номер телефона",
+    required: "Обязательно:",
+    deliveryAddress: "Адрес доставки",
+    enterDeliveryAddress: "Введите полный адрес доставки (минимум 10 символов)",
+    requiredMin10: "Обязательно: минимум 10 символов",
+    orderNotes: "Примечания к заказу (необязательно)",
+    specialInstructions: "Особые инструкции? (например, время доставки, этаж)",
+    orderSummary: "Сводка заказа",
+    paymentMethod: "Способ оплаты",
+    cashOnDelivery: "Оплата при получении",
+    payWhenYouReceive: "Оплатите при получении",
+    completeRequiredFields: "Пожалуйста, заполните обязательные поля",
+
+
+
     // Buyurtma tarixi
     orderHistory: 'История заказов',
     viewYourPastOrders: 'Посмотреть историю',
@@ -53,7 +85,7 @@ export const translations = {
   
   uz: {
     // Asosiy navigatsiya
-    search: 'Qidirish',
+    search: 'Qidirish...',
     cart: 'Savat',
     orders: 'Buyurtmalar',
     favorites: 'Sevimlilar',
@@ -85,7 +117,36 @@ export const translations = {
     favoritesIsEmpty: 'Hozircha sevimlilar yo\'q',
     FavoritesStart: 'Mahsulotlarni sevimlilarga qo‘shishni boshlang',
 
-    
+    // Product 
+    inStock: "Sotuvda mavjud",
+    description: "Tavsif",
+    quantity: "Soni",
+    rating: "dan 5",
+    totalPrice: "Umumiy narx",
+    productNotFound: "Mahsulot topilmadi",
+    goToCart: "Savatga o‘tish",
+    addToCart: "Savatga qo‘shish",
+
+        //Order
+
+    checkout: "To‘lovga o‘tish",
+    completeOrder: "Buyurtmani yakunlash",
+    customerInformation: "Mijoz ma’lumotlari",
+    fullName: "To'liq ism",
+    phoneNumber: "Telefon raqami",
+    required: "Majburiy:",
+    deliveryAddress: "Yetkazib berish manzili",
+    enterDeliveryAddress: "To‘liq yetkazib berish manzilini kiriting (kamida 10 ta belgi)",
+    requiredMin10: "Majburiy: kamida 10 ta belgi",
+    orderNotes: "Buyurtma izohlari (ixtiyoriy)",
+    specialInstructions: "Maxsus ko‘rsatmalar bormi? (masalan, yetkazib berish vaqti, qavat raqami)",
+    orderSummary: "Buyurtma tafsiloti",
+    paymentMethod: "To‘lov usuli",
+    cashOnDelivery: "Naqd to‘lov",
+    payWhenYouReceive: "Qabul qilganingizda to‘lang",
+    completeRequiredFields: "Iltimos, majburiy maydonlarni to‘ldiring",
+
+
     // Buyurtma tarixi
     orderHistory: 'Buyurtmalar tarixi',
     viewYourPastOrders: 'O\'tgan buyurtmalar',
@@ -104,7 +165,7 @@ export const translations = {
   
   en: {
     // Asosiy navigatsiya
-    search: 'Search',
+    search: 'Search...',
     cart: 'Cart',
     orders: 'Orders',
     favorites: 'Favorites',
@@ -136,6 +197,36 @@ export const translations = {
     favoritesIsEmpty: 'No favorites yet',
     FavoritesStart: 'Start adding products to your favorites',
     
+    // Product av
+    inStock: "In Stock",
+    description: "Description",
+    quantity: "Quantity",
+    rating: "out of 5",
+    totalPrice: "Total Price",
+    productNotFound: "Product not found",
+    goToCart: "Go to cart",
+    addToCart: "Add to Cart",
+
+
+    // Order
+    checkout: "Checkout",
+    completeOrder: "Complete your order",
+    customerInformation: "Customer Information",
+    fullName: "Full Name",
+    phoneNumber: "Phone Number",
+    required: "Required:",
+    deliveryAddress: "Delivery Address",
+    enterDeliveryAddress: "Enter your full delivery address (minimum 10 characters)",
+    requiredMin10: "Required: minimum 10 characters",
+    orderNotes: "Order Notes (Optional)",
+    specialInstructions: "Any special instructions? (e.g., delivery time, floor number)",
+    orderSummary: "Order Summary",
+    paymentMethod: "Payment Method",
+    cashOnDelivery: "Cash on delivery",
+    payWhenYouReceive: "Pay when you receive",
+    completeRequiredFields: "Please complete required fields",
+
+
     // Order History
     orderHistory: 'Order History',
     viewYourPastOrders: 'View your past orders',

@@ -4,7 +4,7 @@
       <input
         v-model="localQuery"
         type="text"
-        placeholder="Search products..."
+        :placeholder="userStore.t('search')"
         class="w-full pl-11 pr-11 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-telegram-blue transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400"
         @input="handleInput"
         @focus="isFocused = true"
@@ -68,7 +68,12 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import { useUserStore } from '@/stores/user'
 
+
+
+
+const userStore = useUserStore()
 const props = defineProps({
   modelValue: {
     type: String,

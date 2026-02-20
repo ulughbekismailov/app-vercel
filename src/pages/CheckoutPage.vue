@@ -4,10 +4,10 @@
     <header class="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 animate-slide-up">
       <div class="app-container px-4 py-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white font-display">
-          Checkout
+          {{ userStore.t('checkout') }}
         </h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Complete your order
+          {{ userStore.t('completeOrder') }}
         </p>
       </div>
     </header>
@@ -19,16 +19,16 @@
           <svg class="w-5 h-5 text-telegram-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
-          Customer Information
+          {{ userStore.t('customerInformation') }}
         </h2>
 
         <div class="space-y-3">
           <!-- Full Name (Read-only from Telegram) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
-              Full Name
+              {{ userStore.t('fullName') }}
             </label>
-            <div class="input-field bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
+            <div class="input-field text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
               {{ userFullName }}
             </div>
           </div>
@@ -38,15 +38,15 @@
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
               Telegram Username
             </label>
-            <div class="input-field bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
-              @{{ userUsername || 'N/A' }}
+            <div class="input-field  text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 cursor-not-allowed">
+              @{{ userUsername || 'user' }}
             </div>
           </div>
 
           <!-- Phone Number (MANDATORY) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
-              Phone Number <span class="text-red-500">*</span>
+              {{ userStore.t('phoneNumber') }}<span class="text-red-500">*</span>
             </label>
             <input
               v-model="phoneNumber"
@@ -56,7 +56,7 @@
               maxlength="13"
               type="tel"
               placeholder="+998901234567"
-              class="input-field"
+              class="input-field text-gray-900 dark:text-white"
               :class="{ 
                 'border-red-500': phoneError && phoneNumber.length > 0,
                 'border-green-500': !phoneError && phoneNumber.length > 0 && isPhoneValid
@@ -67,25 +67,25 @@
               {{ phoneError }}
             </p>
             <p v-else-if="!phoneNumber" class="text-gray-400 text-xs mt-1">
-              Required: +998XXXXXXXXX format
+              {{ userStore.t('required') }}: +998*********
             </p>
             <p v-else-if="isPhoneValid" class="text-green-600 text-xs mt-1">
-              ✓ Valid phone number
+              ✓.--------.ok
             </p>
           </div>
 
           <!-- Delivery Address (MANDATORY) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
-              Delivery Address <span class="text-red-500">*</span>
+              {{ userStore.t('deliveryAddress') }} <span class="text-red-500">*</span>
             </label>
             <textarea
               v-model="address"
               @input="validateAddress"
               @blur="validateAddress"
               rows="3"
-              placeholder="Enter your full delivery address (minimum 10 characters)"
-              class="input-field resize-none"
+              :placeholder="userStore.t('enterDeliveryAddress')"
+              class="input-field resize-none text-gray-900 dark:text-white"
               :class="{ 
                 'border-red-500': addressError && address.length > 0,
                 'border-green-500': !addressError && address.length > 0 && isAddressValid
@@ -96,23 +96,24 @@
               {{ addressError }}
             </p>
             <p v-else-if="!address" class="text-gray-400 text-xs mt-1">
-              Required: Minimum 10 characters
+              {{ userStore.t('requiredMin10') }}
             </p>
             <p v-else-if="isAddressValid" class="text-green-600 text-xs mt-1">
-              ✓ Valid address ({{ address.trim().length }} characters)
+               ✓.--------({{ address.trim().length }}).ok
             </p>
           </div>
 
           <!-- Notes (Optional) -->
           <div>
             <label class="text-sm text-gray-600 dark:text-gray-400 block mb-1">
-              Order Notes <span class="text-xs text-gray-400">(Optional)</span>
+              <!-- Order Notes <span class="text-xs text-gray-400">(Optional)</span> -->
+              {{ userStore.t('orderNotes') }}
             </label>
             <textarea
               v-model="notes"
               rows="2"
-              placeholder="Any special instructions? (e.g., delivery time, floor number)"
-              class="input-field resize-none"
+              :placeholder="userStore.t('specialInstructions')"
+              class="input-field resize-none text-gray-900 dark:text-white"
             ></textarea>
           </div>
         </div>
@@ -124,7 +125,7 @@
           <svg class="w-5 h-5 text-telegram-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          Order Summary
+          {{ userStore.t('orderSummary') }}
         </h2>
 
         <div class="space-y-3 mb-4">
@@ -158,16 +159,16 @@
             <span>${{ totalPrice.toFixed(2) }}</span>
           </div>
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
-            <span>Shipping</span>
-            <span class="text-green-600 dark:text-green-400">Free</span>
+            <span>{{ userStore.t('shipping') }}</span>
+            <span class="text-green-600 dark:text-green-400">{{ userStore.t('shippingFree') }}</span>
           </div>
-          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+          <!-- <div class="flex justify-between text-gray-600 dark:text-gray-400">
             <span>Tax</span>
             <span>$0.00</span>
-          </div>
+          </div> -->
           <div class="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between items-center">
             <span class="text-xl font-bold text-gray-900 dark:text-white">
-              Total
+              {{ userStore.t('total') }}
             </span>
             <span class="text-2xl font-bold text-telegram-blue">
               ${{ totalPrice.toFixed(2) }}
@@ -182,7 +183,7 @@
           <svg class="w-5 h-5 text-telegram-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
-          Payment Method
+          {{ userStore.t('paymentMethod') }}
         </h2>
 
         <div class="space-y-2">
@@ -196,8 +197,8 @@
               checked
             />
             <div class="ml-3 flex-1">
-              <p class="font-medium text-gray-900 dark:text-white">Cash on Delivery</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Pay when you receive</p>
+              <p class="font-medium text-gray-900 dark:text-white">{{ userStore.t('cashOnDelivery') }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ userStore.t('payWhenYouReceive') }}</p>
             </div>
           </label>
 
@@ -258,7 +259,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span v-if="!isFormValid && !isSubmitting">Please complete required fields</span>
+          <span v-if="!isFormValid && !isSubmitting">{{ userStore.t('completeRequiredFields') }}</span>
           <span v-else-if="isSubmitting">Processing...</span>
           <span v-else>Confirm Order (${{ totalPrice.toFixed(2) }})</span>
         </button>
