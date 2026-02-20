@@ -27,9 +27,8 @@ const productStore = useProductStore()
 
 
 onMounted(async () => {
+  new TelegramThemeService(userStore);
   telegram.init();
-  console.log('✅ Telegram WebApp initialized');
-  
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
     userStore.setTheme(savedTheme);
@@ -38,8 +37,6 @@ onMounted(async () => {
     userStore.setTheme(telegramTheme); 
   }
   
-  new TelegramThemeService(userStore);
-
   try {
     await Promise.all([
       userStore.fetchCurrentUser(),

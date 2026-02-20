@@ -57,54 +57,32 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    toggleTheme() {
-      this.theme = this.theme === 'light' ? 'dark' : 'light';
-      
-      localStorage.setItem('theme', this.theme);
-      
-      localStorage.setItem('userManuallySetTheme', 'true');
-      
-      this.applyTheme();
-      
-      telegram.hapticFeedback('light');
-      
-      console.log('🎨 Theme toggled to:', this.theme);
+    setTheme(newTheme) {
+        this.theme = newTheme;
+        localStorage.setItem('theme', newTheme);
+        this.applyTheme();
     },
 
-    setTheme(newTheme) {
-      if (this.theme === newTheme) return;
-      
-      this.theme = newTheme;
-      localStorage.setItem('theme', newTheme);
-      this.applyTheme();
-      
-      console.log('🎨 Theme set to:', newTheme);
+      // ✅ toggleTheme ni to'g'rilash
+    toggleTheme() {
+      const newTheme = this.theme === 'light' ? 'dark' : 'light';
+      this.setTheme(newTheme);
+      localStorage.setItem('userManuallySetTheme', 'true');  // MUHIM!
+      telegram.hapticFeedback('light');
     },
 
     applyTheme() {
       const html = document.documentElement;
-      
       if (this.theme === 'dark') {
         html.classList.add('dark');
       } else {
         html.classList.remove('dark');
-      }
-      
-      if (telegram.isInTelegram()) {
-        const themeParams = telegram.getThemeParams();
-        if (themeParams.bg_color) {
-          document.documentElement.style.setProperty('--tg-theme-bg-color', themeParams.bg_color);
-        }
-        if (themeParams.text_color) {
-          document.documentElement.style.setProperty('--tg-theme-text-color', themeParams.text_color);
-        }
       }
     },
 
 
     initTheme() {
       this.applyTheme();
-      console.log('🎨 Theme initialized:', this.theme);
     },
 
 
