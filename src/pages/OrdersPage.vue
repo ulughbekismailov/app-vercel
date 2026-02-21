@@ -126,63 +126,23 @@ const getStatusClass = (status) => {
 const viewOrderDetails = (orderId) => {
   telegram.hapticFeedback('light');
   
-  // 1️⃣ Order ni topish
   const order = orderStore.orders.find(o => o.id === orderId);
+  if (!order) return telegram.showAlert('❌ Order topilmadi');
   
-  if (!order) {
-    telegram.showAlert('❌ Order not found');
-    return;
-  }
-  
-  // 2️⃣ Order ma'lumotlarini formatlash
-  const orderDate = new Date(order.created_at).toLocaleDateString('uz-UZ', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-  
-  // 3️⃣ Status badge
   const statusEmoji = {
-    'Pending': '⏳',
-    'Processing': '⚙️',
-    'Shipped': '📦',
-    'Delivered': '✅',
-    'Cancelled': '❌'
+    'Pending': '⏳', 'Processing': '⚙️', 
+    'Shipped': '📦', 'Delivered': '✅', 'Cancelled': '❌'
   }[order.status] || '📋';
   
-  // 4️⃣ Mahsulotlar ro'yxatini tuzish
-  let itemsList = '';
-  let total = 0;
+  const items = order.items.map(item => 
+    `  • ${item.product_name} x${item.quantity}`
+  ).join('\n');
   
-  order.items.forEach((item, index) => {
-    itemsList += `${index + 1}. ${item.product_name} x${item.quantity} = $${(item.price * item.quantity).toFixed(2)}\n`;
-    total += item.price * item.quantity;
+  telegram.showPopup({
+    title: `Buyurtma #${order.id}`,
+    message: `${statusEmoji} ${order.status}\n📅 ${new Date(order.created_at).toLocaleDateString()}\n📞 ${order.phone_number || 'Tel yo\'q'}\n📍 ${order.shipping_address?.slice(0, 40) || 'Manzil yo\'q'}\n\n🛍️ Mahsulotlar:\n${items}\n\n💰 Jami: $${order.total_price?.toFixed(2)}`,
+    buttons: [{ id: 'close', type: 'close', text: 'Yopish' }]
   });
-  
-  // 5️⃣ To'liq xabarni yaratish
-  const message = `
-    📋 **ORDER #${order.id} DETAILS**
-
-    📅 **Date:** ${orderDate}
-    ${statusEmoji} **Status:** ${order.status}
-
-    👤 **Customer:** ${order.customer_name || 'N/A'}
-    📞 **Phone:** ${order.phone_number || 'Not provided'}
-    📍 **Address:** ${order.shipping_address || 'N/A'}
-    📝 **Notes:** ${order.notes || 'No notes'}
-
-    🛍️ **ITEMS:**
-    ${itemsList}
-    ────────────────
-    💰 **TOTAL: $${total.toFixed(2)}**
-
-    💳 **Payment:** ${order.payment_method || 'Cash on Delivery'}
-      `;
-  
-  // 6️⃣ Alertda ko'rsatish
-  telegram.showAlert(message);
 };
 
 onMounted(async() => {
