@@ -42,8 +42,8 @@ export const translations = {
     rating: "из 5",
     totalPrice: "Общая стоимость",
     productNotFound: "Товар не найден",
-    goToCart: "Перейти в корзину",
-    addToCart: "Добавить в корзину",
+    goToCart: "Перейти",
+    addToCart: "Добавить",
 
     
     //Order
@@ -124,8 +124,8 @@ export const translations = {
     rating: "dan 5",
     totalPrice: "Umumiy narx",
     productNotFound: "Mahsulot topilmadi",
-    goToCart: "Savatga o‘tish",
-    addToCart: "Savatga qo‘shish",
+    goToCart: "Savatda",
+    addToCart: "Qo‘shish",
 
         //Order
 
