@@ -134,7 +134,7 @@ export const translations = {
     customerInformation: "Mijoz ma’lumotlari",
     fullName: "To'liq ism",
     phoneNumber: "Telefon raqami",
-    required: "Majburiy:",
+    required: "Majburiy",
     deliveryAddress: "Yetkazib berish manzili",
     enterDeliveryAddress: "To‘liq yetkazib berish manzilini kiriting (kamida 10 ta belgi)",
     requiredMin10: "Majburiy: kamida 10 ta belgi",

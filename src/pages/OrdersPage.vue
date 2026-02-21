@@ -125,7 +125,64 @@ const getStatusClass = (status) => {
 
 const viewOrderDetails = (orderId) => {
   telegram.hapticFeedback('light');
-  telegram.showAlert(`Order #${orderId} Tez orada bu yerda batafsil ko'rishingiz mumkun!`);
+  
+  // 1️⃣ Order ni topish
+  const order = orderStore.orders.find(o => o.id === orderId);
+  
+  if (!order) {
+    telegram.showAlert('❌ Order not found');
+    return;
+  }
+  
+  // 2️⃣ Order ma'lumotlarini formatlash
+  const orderDate = new Date(order.created_at).toLocaleDateString('uz-UZ', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  
+  // 3️⃣ Status badge
+  const statusEmoji = {
+    'Pending': '⏳',
+    'Processing': '⚙️',
+    'Shipped': '📦',
+    'Delivered': '✅',
+    'Cancelled': '❌'
+  }[order.status] || '📋';
+  
+  // 4️⃣ Mahsulotlar ro'yxatini tuzish
+  let itemsList = '';
+  let total = 0;
+  
+  order.items.forEach((item, index) => {
+    itemsList += `${index + 1}. ${item.product_name} x${item.quantity} = $${(item.price * item.quantity).toFixed(2)}\n`;
+    total += item.price * item.quantity;
+  });
+  
+  // 5️⃣ To'liq xabarni yaratish
+  const message = `
+    📋 **ORDER #${order.id} DETAILS**
+
+    📅 **Date:** ${orderDate}
+    ${statusEmoji} **Status:** ${order.status}
+
+    👤 **Customer:** ${order.customer_name || 'N/A'}
+    📞 **Phone:** ${order.phone_number || 'Not provided'}
+    📍 **Address:** ${order.shipping_address || 'N/A'}
+    📝 **Notes:** ${order.notes || 'No notes'}
+
+    🛍️ **ITEMS:**
+    ${itemsList}
+    ────────────────
+    💰 **TOTAL: $${total.toFixed(2)}**
+
+    💳 **Payment:** ${order.payment_method || 'Cash on Delivery'}
+      `;
+  
+  // 6️⃣ Alertda ko'rsatish
+  telegram.showAlert(message);
 };
 
 onMounted(async() => {

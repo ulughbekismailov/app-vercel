@@ -134,7 +134,7 @@
           <select
             v-model="selectedLanguage"
             @change="changeLanguage"
-            class="input-field"
+            class="input-field text-gray-900 dark:text-white"
           >
             <option value="ru">Русский</option>
             <option value="uz">O'zbek</option>
@@ -184,7 +184,6 @@ const toggleTheme = () => {
 const changeLanguage = () => {
   userStore.setLanguage(selectedLanguage.value);
   telegram.hapticFeedback('success');
-  telegram.showAlert('Language changed successfully!');
 };
 
 onMounted(async() => {
