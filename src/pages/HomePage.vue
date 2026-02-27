@@ -96,14 +96,7 @@
         <!-- Loading spinner -->
         <div v-if="loadingMore" class="flex items-center gap-2">
           <div class="w-5 h-5 border-2 border-telegram-blue border-t-transparent rounded-full animate-spin"></div>
-          <span class="text-sm text-gray-500">Yuklanmoqda...</span>
-        </div>
-        
-        <!-- All loaded message -->
-        <div v-else-if="!hasMore && products.length > 0" class="text-center">
-          <span class="text-sm text-gray-400">
-            🎉 Hammasi yuklandi
-          </span>
+          <span class="text-sm text-gray-500">Loading...</span>
         </div>
         
         <!-- Hidden trigger (ko'rinmas) -->
@@ -111,6 +104,7 @@
       </div>
 
       <!-- Custom qo'shilga loading yuklanmoqda ___________________________________________UI -->
+
     </div>
   </div>
 </template>

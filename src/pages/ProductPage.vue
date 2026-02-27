@@ -16,7 +16,15 @@
       <div class="relative bg-white dark:bg-gray-800 mb-4">
         <div class="relative h-96 overflow-hidden">
           <transition-group name="slide-fade">
-            <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"/>
+
+            <img
+              v-for="(image, index) in images"
+              :key="index"
+              :src="image || '../assets/no-image.png'"
+              :alt="product.name"
+              class="absolute w-full h-full object-cover"
+              v-show="currentImageIndex === index" />
+
           </transition-group>
 
           <!-- Favorite Button -->
@@ -264,9 +272,8 @@ const productRating = computed(() => Math.floor(Math.random() * 2) + 4);
 
 const images = computed(() => {
   if (!product.value) return [];
-  return product.value.images || [product.value.image];
+  return product.value.images?.length ? product.value.images : [product.value.image];
 });
-
 
 const totalPrice = computed(() => {
   return product.value ? product.value.price * quantity.value : 0;
@@ -276,20 +283,22 @@ const isInCart = computed(() => {
   return product.value ? cartStore.isInCart(product.value.id) : false;
 });
 
-// const nextImage = () => {
-//   currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length;
-//   telegram.hapticFeedback('selection');
-// };
 
-// const prevImage = () => {
-//   currentImageIndex.value = (currentImageIndex.value - 1 + images.value.length) % images.value.length;
-//   telegram.hapticFeedback('selection');
-// };
+const nextImage = () => {
+  currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length;
+  telegram.hapticFeedback('selection');
+};
 
-// const goToImage = (index) => {
-//   currentImageIndex.value = index;
-//   telegram.hapticFeedback('light');
-// };
+const prevImage = () => {
+  currentImageIndex.value = (currentImageIndex.value - 1 + images.value.length) % images.value.length;
+  telegram.hapticFeedback('selection');
+};
+
+
+const goToImage = (index) => {
+  currentImageIndex.value = index;
+  telegram.hapticFeedback('light');
+};
 
 
 const handleLikeClick = async (event) => {

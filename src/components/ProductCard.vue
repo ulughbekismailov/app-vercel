@@ -5,7 +5,7 @@
   >
     <div class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
       <img 
-        src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop" 
+        :src="product.main_image || '../assets/no-image.png'"
         alt="pisot"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         loading="lazy"
