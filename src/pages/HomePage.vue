@@ -246,5 +246,7 @@ watch(searchQuery, (val) => {
       productStore.setSearchQuery(val);
     }
   }, 350);
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 </script>

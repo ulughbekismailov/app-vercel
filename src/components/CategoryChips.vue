@@ -9,9 +9,13 @@
           ? 'bg-telegram-blue text-white shadow-md' 
           : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
       >
-      
-        <span class="text-base">🏪</span>
-        <span>All</span>
+
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="5" height="5" rx="2" fill="currentColor"/>
+          <rect x="13" y="3" width="5" height="5" rx="2" fill="currentColor"/>
+          <rect x="3" y="13" width="5" height="5" rx="2" fill="currentColor"/>
+          <rect x="13" y="13" width="5" height="5" rx="2" fill="currentColor"/>
+        </svg>
         <span 
           v-if="isSelected(null)"
           class="w-1.5 h-1.5 bg-white rounded-full"
@@ -87,11 +91,21 @@ const selectCategory = (categoryId) => {
   top: 0;
   bottom: 0;
   width: 40px;
-  background: linear-gradient(to right, transparent, var(--tg-theme-bg-color));
   pointer-events: none;
+  background: linear-gradient(to right, transparent, #ffffff);
+  z-index: 1;
+}
+
+:root.dark .category-chips-container::after,
+.dark .category-chips-container::after {
+  background: linear-gradient(to right, transparent, #1f2937);  /* gray-800 */
+}
+
+.category-chips-container::after {
+  background: linear-gradient(to right, transparent, var(--tg-theme-bg-color, #ffffff));
 }
 
 .dark .category-chips-container::after {
-  background: linear-gradient(to right, transparent, var(--tg-theme-bg-color));
+  background: linear-gradient(to right, transparent, var(--tg-theme-bg-color, #1f2937));
 }
 </style>
