@@ -86,20 +86,44 @@
           @click="goToProduct(product.id)"
         />
       </div>
+
+      <!-- Custom qo'shilga loading yuklanmoqda ___________________________________________UI -->
+
+      <div 
+        ref="loadMoreTrigger"
+        class="w-full py-4 flex justify-center"
+      >
+        <!-- Loading spinner -->
+        <div v-if="loadingMore" class="flex items-center gap-2">
+          <div class="w-5 h-5 border-2 border-telegram-blue border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-sm text-gray-500">Yuklanmoqda...</span>
+        </div>
+        
+        <!-- All loaded message -->
+        <div v-else-if="!hasMore && products.length > 0" class="text-center">
+          <span class="text-sm text-gray-400">
+            🎉 Hammasi yuklandi
+          </span>
+        </div>
+        
+        <!-- Hidden trigger (ko'rinmas) -->
+        <div v-else class="h-4"></div>
+      </div>
+
+      <!-- Custom qo'shilga loading yuklanmoqda ___________________________________________UI -->
     </div>
   </div>
 </template>
 
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useCartStore } from '@/stores/cart';
 import ProductCard from '@/components/ProductCard.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import CategoryChips from '@/components/CategoryChips.vue';
-import AdSlider from '@/components/AdSlider.vue';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useProductStore } from '@/stores/product';
@@ -108,37 +132,55 @@ const router = useRouter();
 const productStore = useProductStore();
 const userStore = useUserStore();
 const cartStore = useCartStore();
-const searchQuery = ref('');
-const selectedCategory = ref(null);
 const favoriteStore = useFavoriteStore();
 
+// Refs
+const searchQuery = ref('');
+const selectedCategory = ref(null);
+const loadMoreTrigger = ref(null);
+let observer = null;
+let searchTimer = null;
 
+// Computed
 const loading = computed(() => productStore.loading);
 const categories = computed(() => productStore.categories);
 const products = computed(() => productStore.products);
 const isDarkMode = computed(() => userStore.isDarkMode);
+const loadingMore = computed(() => productStore.loadingMore);
+const hasMore = computed(() => productStore.hasMore);
 
+// Intersection Observer
+const setupIntersectionObserver = () => {
+  if (!loadMoreTrigger.value) return;
+  
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && hasMore.value && !loadingMore.value) {
+        productStore.loadMoreProducts();
+      }
+    },
+    { threshold: 0.1, rootMargin: '200px' }
+  );
+  observer.observe(loadMoreTrigger.value);
+};
 
-
+// Handlers
 const handleSearch = (query) => {
   searchQuery.value = query;
   productStore.setSearchQuery(query);
+  telegram.hapticFeedback('light');
 };
 
 const handleClearSearch = () => {
   searchQuery.value = '';
   productStore.setSearchQuery('');
+  telegram.hapticFeedback('light');
 };
 
 const handleCategoryChange = (categoryId) => {
-    selectedCategory.value = categoryId;
-    
-  if (categoryId === null) {
-    productStore.setSelectedCategory(null);
-  } else {
-    productStore.setSelectedCategory(categoryId);   
-  }
-  
+  selectedCategory.value = categoryId;
+  productStore.setSelectedCategory(categoryId);
+  telegram.hapticFeedback('light');
 };
 
 const clearFilters = () => {
@@ -146,6 +188,7 @@ const clearFilters = () => {
   selectedCategory.value = null;
   productStore.clearSearch();
   productStore.setSelectedCategory(null);
+  telegram.hapticFeedback('light');
 };
 
 const goToProduct = (productId) => {
@@ -153,38 +196,55 @@ const goToProduct = (productId) => {
   router.push(`/product/${productId}`);
 };
 
-const handleAdClick = (ad) => {
-  console.log('Ad clicked:', ad);
-};
-
 const toggleTheme = () => {
   userStore.toggleTheme();
+  telegram.hapticFeedback('light');
 };
 
-
+// Lifecycle
 onMounted(async () => {
   try {
     await Promise.all([
       productStore.fetchCategories(),
-      productStore.fetchProducts(),
+      productStore.fetchProducts(true),
       favoriteStore.loadLikes()
     ]);
     
     Promise.all([
-      userStore.fetchCurrentUser(),   
+      userStore.fetchCurrentUser(),
       cartStore.fetchCart()
-    ]).then(() => {
-      console.log('Ikkinchi darajali malumotlar yuklandi:UI');
-    });
+    ]).catch(console.warn);
 
     selectedCategory.value = productStore.selectedCategory;
-    
+    setupIntersectionObserver();
+
   } catch (error) {
     console.error('Xatolik:', error);
   }
 });
 
+onUnmounted(() => {
+  if (observer) observer.disconnect();
+  if (searchTimer) clearTimeout(searchTimer);
+});
+
+// Watchers
 watch(() => productStore.selectedCategory, (newVal) => {
   selectedCategory.value = newVal;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+watch([() => productStore.products, () => loadMoreTrigger.value], () => {
+  if (observer) observer.disconnect();
+  setupIntersectionObserver();
+});
+
+watch(searchQuery, (val) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    if (val !== productStore.searchQuery) {
+      productStore.setSearchQuery(val);
+    }
+  }, 350);
 });
 </script>
