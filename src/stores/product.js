@@ -16,6 +16,7 @@ export const useProductStore = defineStore('product', {
     nextCursor: null,        // Keyingi sahifa uchun cursor
     hasMore: true,            // Yana product bormi?
     loadingMore: false, 
+    pageSize: 2
   }),
 
   getters: {
@@ -48,7 +49,7 @@ export const useProductStore = defineStore('product', {
       
       try {
           const params = {
-            page_size: 2,
+            page_size: this.pageSize
           };
           
 
