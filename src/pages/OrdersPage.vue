@@ -134,14 +134,14 @@ const viewOrderDetails = (orderId) => {
     'Shipped': '📦', 'Delivered': '✅', 'Cancelled': '❌'
   }[order.status] || '📋';
   
-  const items = order.items.map(item => 
+  const items = order.items.map(item =>
     `  • ${item.product_name} x${item.quantity}`
   ).join('\n');
   
   telegram.showPopup({
     title: `Buyurtma #${order.id}`,
     message: `${statusEmoji} ${order.status}\n📅 ${new Date(order.created_at).toLocaleDateString()}\n📞 ${order.phone_number || 'Tel yo\'q'}\n📍 ${order.shipping_address?.slice(0, 40) || 'Manzil yo\'q'}\n\n🛍️ Mahsulotlar:\n${items}\n\n💰 Jami: $${order.total_price}`,
-    buttons: [{ id: 'close', type: 'close', text: 'Yopish' }]
+    buttons: [{ id: 'close', type: 'close', text: 'Close' }]
   });
 };
 
