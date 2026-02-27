@@ -101,11 +101,11 @@ const selectCategory = (categoryId) => {
   background: linear-gradient(to right, transparent, #1f2937);  /* gray-800 */
 }
 
-.category-chips-container::after {
+/* .category-chips-container::after {
   background: linear-gradient(to right, transparent, var(--tg-theme-bg-color, #ffffff));
-}
+} */
 
-.dark .category-chips-container::after {
+/* .dark .category-chips-container::after {
   background: linear-gradient(to right, transparent, var(--tg-theme-bg-color, #1f2937));
-}
+} */
 </style>
