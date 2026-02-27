@@ -39,7 +39,7 @@
     </header>
 
     <!-- Ad Slider -->
-    <AdSlider @ad-click="handleAdClick" />
+    <!-- <AdSlider @ad-click="handleAdClick" /> -->
 
     <!-- Category Chips -->
     <CategoryChips
