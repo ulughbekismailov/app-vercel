@@ -5,7 +5,7 @@
   >
     <div class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
       <img 
-        :src="product.main_image || '../assets/no-image.png'"
+        :src="product.main_image || noImage"
         alt="pisot"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         loading="lazy"
@@ -99,6 +99,7 @@
 import { computed } from 'vue';
 import { useFavoriteStore } from '@/stores/favorites';
 import telegram from '@/services/telegram';
+import noImage from '@/assets/no-image.png';
 
 
 const props = defineProps({

@@ -20,7 +20,7 @@
             <img
               v-for="(image, index) in images"
               :key="index"
-              :src="image || '../assets/no-image.png'"
+              :src="image || noImage"
               :alt="product.name"
               class="absolute w-full h-full object-cover"
               v-show="currentImageIndex === index" />
@@ -251,6 +251,8 @@ import QuantitySelector from '@/components/QuantitySelector.vue';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useUserStore } from '@/stores/user';
+import noImage from '@/assets/no-image.png';
+
 
 
 
@@ -272,7 +274,9 @@ const productRating = computed(() => Math.floor(Math.random() * 2) + 4);
 
 const images = computed(() => {
   if (!product.value) return [];
-  return product.value.images?.length ? product.value.images : [product.value.image];
+  if (product.value.images?.length) {
+    return product.value.images.map(img => img.image);
+  }
 });
 
 const totalPrice = computed(() => {
@@ -345,6 +349,9 @@ onMounted(async () => {
       quantity.value = cartQuantity;
     }
   }
+
+  console.log("Rasmlar yukladni",images.value);
+  
 });
 </script>
 
