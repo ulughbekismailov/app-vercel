@@ -16,7 +16,7 @@ export const useProductStore = defineStore('product', {
     nextCursor: null,        // Keyingi sahifa uchun cursor
     hasMore: true,            // Yana product bormi?
     loadingMore: false, 
-    pageSize: 4
+    pageSize: 2
   }),
 
   getters: {
