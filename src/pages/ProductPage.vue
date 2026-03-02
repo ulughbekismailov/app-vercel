@@ -345,7 +345,7 @@ onMounted(async () => {
 });
 
 onUnmounted(()=>{
-  clearCurrentProduct()
+  productStore.clearCurrentProduct()
 })
 </script>
 
