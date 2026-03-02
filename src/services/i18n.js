@@ -63,7 +63,7 @@ export const translations = {
     paymentMethod: "Способ оплаты",
     cashOnDelivery: "Оплата при получении",
     payWhenYouReceive: "Оплатите при получении",
-    completeRequiredFields: "Пожалуйста, заполните обязательные поля",
+    completeRequiredFields: "Заполните поля",
 
 
 
@@ -144,7 +144,7 @@ export const translations = {
     paymentMethod: "To‘lov usuli",
     cashOnDelivery: "Naqd to‘lov",
     payWhenYouReceive: "Qabul qilganingizda to‘lang",
-    completeRequiredFields: "Iltimos, majburiy maydonlarni to‘ldiring",
+    completeRequiredFields: "Maydonlarni to‘ldiring",
 
 
     // Buyurtma tarixi
@@ -224,7 +224,7 @@ export const translations = {
     paymentMethod: "Payment Method",
     cashOnDelivery: "Cash on delivery",
     payWhenYouReceive: "Pay when you receive",
-    completeRequiredFields: "Please complete required fields",
+    completeRequiredFields: "Complete fields",
 
 
     // Order History
