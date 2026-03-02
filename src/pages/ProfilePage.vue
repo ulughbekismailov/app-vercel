@@ -5,14 +5,14 @@
       <div class="app-container px-4 py-6">
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-full bg-gradient-to-br from-telegram-blue to-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-            UI
+            {{ isLoading ? '.' : userInitials }}
           </div>
           <div class="flex-1">
             <h1 class="text-xl font-bold text-gray-900 dark:text-white">
               {{user.first_name}}
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              @{{ user.username }}
+              {{ user.username ? '@' + user.username : '' }}
             </p>
           </div>
         </div>
@@ -174,6 +174,23 @@ const user = computed(() => userStore.user);
 const selectedLanguage = ref(userStore.language);
 
 
+const userInitials = computed(() => {
+    const firstName = user.value?.first_name || '';
+    const lastName = user.value?.last_name || '';
+    
+    const first = firstName.charAt(0);
+    const last = lastName.charAt(0);
+
+    if (first && last) {
+        return (first + last).toUpperCase();
+    }
+    if (first) {
+        return first.toUpperCase();
+    }
+    return '👤';
+});
+
+
 
 const isDarkMode = computed(() => userStore.isDarkMode);
 
@@ -187,12 +204,14 @@ const changeLanguage = () => {
 };
 
 onMounted(async() => {
-  await favoriteStore.loadLikes();
-  await orderStore.fetchOrders();
-  await userStore.fetchCurrentUser()
-
-  console.log("User aniqlandi:", user.value);
-  
+    isLoading.value = true;
+    try {
+        await favoriteStore.loadLikes();
+        await orderStore.fetchOrders();
+        await userStore.fetchCurrentUser();
+    } finally {
+        isLoading.value = false;
+    }
 
   if (!localStorage.getItem('userLanguageSet') && user.value?.language_code) {
     selectedLanguage.value = user.value.language_code;
