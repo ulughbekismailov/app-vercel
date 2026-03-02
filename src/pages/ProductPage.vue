@@ -101,18 +101,18 @@
             <span 
               v-if="product.discount_percent"
               class="text-3xl font-bold text-telegram-blue">
-              ${{ product.new_price }}
+              {{ product.new_price }} uzs
             </span>
              <span 
               v-else
               class="text-3xl font-bold text-telegram-blue">
-              ${{ product.price }}
+              {{ product.price }} uzs
             </span>
             <span 
               v-if="product.discount_percent"
               class="text-xl text-gray-400 line-through"
             >
-              ${{ product.price }}
+              {{ product.price }} uzs
             </span>
             <span 
               v-if="product.discount_percent"
@@ -224,7 +224,7 @@
         <div class="flex-1">
           <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ userStore.t('totalPrice') }}</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white">
-            ${{ totalPrice }}
+            {{ isInCart ? product.price : totalPrice }}
           </p>
         </div>
         <button

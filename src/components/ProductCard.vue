@@ -11,7 +11,6 @@
         loading="lazy"
       />
       
-      <!-- Discount Badge -->
       <div 
          v-if="product.discount_percent"
         class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-lg"
@@ -61,17 +60,17 @@
       <div class="flex items-center gap-2">
         <span v-if="product.discount_percent" 
          class="text-lg font-bold text-gray-900 dark:text-white">
-          ${{ product.new_price }}
+          {{ product.new_price }} uzs
         </span>
         <span v-else
          class="text-lg font-bold text-gray-900 dark:text-white">
-          ${{ product.price }}
+          {{ product.price }} uzs
         </span>
         <span 
           v-if="product.discount_percent" 
           class="text-sm text-gray-400 line-through"
         >
-          {{ product.price }}
+          {{ product.price }} uzs
         </span>
       </div>
 
