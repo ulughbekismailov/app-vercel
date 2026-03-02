@@ -12,16 +12,12 @@ export const useOrderStore = defineStore('order', {
   }),
 
   getters: {
-    // Barcha orderlar
     allOrders: (state) => state.orders,
     
-    // Pending orderlar
     pendingOrders: (state) => state.orders.filter(o => o.status === 'Pending'),
     
-    // Yetkazilgan orderlar
     deliveredOrders: (state) => state.orders.filter(o => o.status === 'Delivered'),
     
-    // Order statusini o'qish uchun
     getOrderStatus: (state) => (orderId) => {
       const order = state.orders.find(o => o.id === orderId);
       return order?.status || 'Unknown';
@@ -29,22 +25,14 @@ export const useOrderStore = defineStore('order', {
   },
 
   actions: {
-    // ✅ 1. CHECKOUT (Yangi order yaratish)
     async checkout(orderData) {
       this.loading = true;
       this.error = null;
       
       try {
-        // orderData = {
-        //   shipping_address: "Toshkent, Chilonzor",
-        //   phone_number: "+998901234567",
-        //   notes: "Tezroq keltiring"
-        // }
-        
         const order = await apiService.checkout(orderData);
         this.currentOrder = order;
         
-        // Orderlar ro'yxatiga qo'shish
         this.orders.unshift(order);
         
         telegram.hapticFeedback('success');
@@ -59,7 +47,6 @@ export const useOrderStore = defineStore('order', {
       }
     },
 
-    // ✅ 2. ORDER LARNI YUKLASH
     async fetchOrders() {
       this.loading = true;
       try {

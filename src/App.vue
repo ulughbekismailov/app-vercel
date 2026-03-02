@@ -17,13 +17,15 @@ import BottomNavigation from '@/components/BottomNavigation.vue'
 import { useUserStore } from '@/stores/user';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useCartStore } from '@/stores/cart';
-import { useProductStore } from '@/stores/product'
+import { useProductStore } from '@/stores/product';
+import { useOrderStore } from '@/stores/order';
 
 
 const userStore = useUserStore();
 const favoriteStore = useFavoriteStore();
 const cartStore = useCartStore();
 const productStore = useProductStore()
+const orderStore = useOrderStore()
 
 
 onMounted(async () => {
@@ -41,6 +43,7 @@ onMounted(async () => {
     await Promise.all([
       userStore.fetchCurrentUser(),
       favoriteStore.loadLikes(),
+      orderStore.fetchOrders(),
       cartStore.fetchCart()
     ]);
     

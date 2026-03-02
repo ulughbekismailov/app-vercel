@@ -147,16 +147,7 @@ const confirmClearCart = () => {
   });
 };
 
-
-let backButtonHandler = null;
-
 onMounted(async () => {
-  backButtonHandler = () => {
-    telegram.hapticFeedback('light');
-    router.push('/');
-  };
-  
-  telegram.showBackButton(backButtonHandler);
 
   try {
     await cartStore.fetchCart();
@@ -165,11 +156,6 @@ onMounted(async () => {
     console.error('Failed to load cart:', error);
   }
 
-});
-
-onUnmounted(() => {
-  telegram.hideBackButton();
-  console.log('✅ Back button hidden on CartPage unmount');
 });
 
 </script>

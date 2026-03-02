@@ -53,8 +53,7 @@ export const useUserStore = defineStore('user', {
             username: tgUser?.username || null,
             language_code: tgUser?.language_code || 'en',
         };
-        // const data = await apiService.getCurrentUser();
-        // this.user = data;
+        
         }
         if(data?.language_code){
           if(!localStorage.getItem('userLanguageSet')){

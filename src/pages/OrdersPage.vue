@@ -66,10 +66,10 @@
           <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
             <div>
               <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                {{ order.items.length }} {{ order.items.length === 1 ? 'item' : 'items' }}
+                qty:{{ order.items.length }}
               </p>
               <p class="text-lg font-bold text-gray-900 dark:text-white">
-                ${{ Number(order.total_price).toFixed(2) }}
+                {{ Number(order.total_price).toFixed(2) }}UZS
               </p>
             </div>
             <button
@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user'
 import { useOrderStore } from '@/stores/order';
@@ -147,7 +147,5 @@ const viewOrderDetails = (orderId) => {
 
 onMounted(async() => {
   await orderStore.fetchOrders();
-  console.log("Order consolda", orders.value);
-  
 });
 </script>

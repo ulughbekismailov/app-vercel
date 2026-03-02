@@ -58,9 +58,7 @@ const router = createRouter({
   }
 });
 
-// Navigation guards
 router.beforeEach((to, from, next) => {
-  // Handle Telegram back button
   if (to.meta.showBackButton) {
     telegram.showBackButton(() => {
       router.back();

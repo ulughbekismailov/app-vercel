@@ -243,7 +243,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
@@ -319,40 +319,34 @@ const addToCart = async (event) => {
     isInCart.value = true;
     
     try {
-      setTimeout(() => {
-        router.push('/cart');
-      }, 150);
       await cartStore.addItem(product.value.id, quantity.value);
       telegram.hapticFeedback('success');
+      router.push('/cart');
       
     } catch (error) {
       isInCart.value = false;
       telegram.hapticFeedback('error');
-      console.error('Xatolik:', error);
     }
-  } else {
-    router.push('/cart');
   }
-
+  router.push('/cart');
 };
 
 onMounted(async () => {
   const productId = parseInt(route.params.id);
   await productStore.fetchProductById(productId);
   await cartStore.fetchCart();
-  
 
-  // Set initial quantity if already in cart
   if (product.value) {
     const cartQuantity = cartStore.getItemQuantity(product.value.id);
     if (cartQuantity > 0) {
       quantity.value = cartQuantity;
     }
   }
-
-  console.log("Rasmlar yukladni",images.value);
-  
 });
+
+onUnmounted(()=>{
+  clearCurrentProduct()
+})
 </script>
 
 <style scoped>

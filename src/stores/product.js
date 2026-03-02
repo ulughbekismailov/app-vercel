@@ -116,6 +116,11 @@ export const useProductStore = defineStore('product', {
       }
     },
 
+    clearCurrentProduct() {
+      this.currentProduct = null;
+      this.error = null;
+    },
+
     // ✅ Filter va qidiruv (keyin backendga ulaymiz)
     setSelectedCategory(categoryId) {
       this.selectedCategory = categoryId;

@@ -399,8 +399,6 @@ const placeOrder = async () => {
       notes: notes.value.trim() || ''
     };
 
-    console.log('📦 Submitting order:', orderData);
-
     const response = await orderStore.checkout(orderData);
 
     if (response) {

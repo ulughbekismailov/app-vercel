@@ -60,16 +60,16 @@ export const useCartStore = defineStore('cart', {
     },
 
     async removeItem(itemId) {
-        const itemIndex = this.items.findIndex(item => item.id === itemId);
-        if (itemIndex === -1) return;
+        // const itemIndex = this.items.findIndex(item => item.id === itemId);
+        // if (itemIndex === -1) return;
         
-        const removedItem = this.items[itemIndex];
-        const oldTotal = this.subtotal;
-        const oldItemCount = this.total_items;
+        // const removedItem = this.items[itemIndex];
+        // const oldTotal = this.subtotal;
+        // const oldItemCount = this.total_items;
         
-        this.items.splice(itemIndex, 1);
-        this.total_items -= removedItem.quantity;
-        this.subtotal -= removedItem.product_price * removedItem.quantity;
+        // this.items.splice(itemIndex, 1);
+        // this.total_items -= removedItem.quantity;
+        // this.subtotal -= removedItem.product_price * removedItem.quantity;
         
         try {
           const data = await apiService.removeCartItem(itemId);
@@ -78,9 +78,9 @@ export const useCartStore = defineStore('cart', {
           this.subtotal = data.subtotal;
         } catch (error) {
           // Rollback
-          this.items.splice(itemIndex, 0, removedItem);
-          this.total_items = oldItemCount;
-          this.subtotal = oldTotal;
+          // this.items.splice(itemIndex, 0, removedItem);
+          // this.total_items = oldItemCount;
+          // this.subtotal = oldTotal;
           console.error(error);
         }
     },
