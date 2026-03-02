@@ -189,6 +189,10 @@ const changeLanguage = () => {
 onMounted(async() => {
   await favoriteStore.loadLikes();
   await orderStore.fetchOrders();
+  await userStore.fetchCurrentUser()
+
+  console.log("User aniqlandi:", user.value);
+  
 
   if (!localStorage.getItem('userLanguageSet') && user.value?.language_code) {
     selectedLanguage.value = user.value.language_code;

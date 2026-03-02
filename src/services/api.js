@@ -95,8 +95,8 @@ api.interceptors.response.use(
 
 const apiService = {
 
-  async getCurrentUser() {
-    const response = await api.get('/telegram-users/');
+  async getCurrentUser(userId) {
+    const response = await api.get('/auth/users/me/');
     return response.data;
   },
 

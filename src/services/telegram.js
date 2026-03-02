@@ -41,9 +41,9 @@ class TelegramService {
   getUser() {
     return this.webApp?.initDataUnsafe?.user || {
       id: 123456789,
-      first_name: 'Test',
-      last_name: 'User',
-      username: 'testuser',
+      first_name: 'User',
+      last_name: 'Web User',
+      username: 'webuser',
       language_code: 'en'
     };
   }
