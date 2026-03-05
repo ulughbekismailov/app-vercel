@@ -140,12 +140,13 @@ const viewOrderDetails = (orderId) => {
   
   telegram.showPopup({
     title: `Buyurtma #${order.id}`,
-    message: `${statusEmoji} ${order.status}\n📅 ${new Date(order.created_at).toLocaleDateString()}\n📞 ${order.phone_number || 'Tel yo\'q'}\n📍 ${order.shipping_address?.slice(0, 40) || 'Manzil yo\'q'}\n\n🛍️ Mahsulotlar:\n${items}\n\n💰 Jami: $${order.total_price}`,
+    message: `${statusEmoji} ${order.status}\n📅 ${new Date(order.created_at).toLocaleDateString()}\n📞 ${order.phone_number || 'Tel yo\'q'}\n📍 ${order.shipping_address?.slice(0, 40) || 'Manzil yo\'q'}\n\n🛍️ Mahsulotlar:\n${items}\n\n💰 Jami: ${order.total_price} uzs`,
     buttons: [{ id: 'close', type: 'close', text: 'Close' }]
   });
 };
 
 onMounted(async() => {
   await orderStore.fetchOrders();
+  console.log("Order consolda", orders.value);
 });
 </script>
