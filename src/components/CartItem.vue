@@ -4,7 +4,7 @@
     <div class="flex-shrink-0">
       <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
         <img 
-          src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"
+          :src="item.main_image || noImage"
           class="w-full h-full object-cover"
         />
       </div>
@@ -126,6 +126,7 @@
 <script setup>
 import { useCartStore } from '@/stores/cart';
 import { useUserStore } from '@/stores/user';
+import noImage from '@/assets/no-image.png';
 
 const userStore = useUserStore()
 
