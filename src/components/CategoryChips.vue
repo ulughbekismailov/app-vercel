@@ -69,6 +69,7 @@ const selectCategory = (categoryId) => {
 };
 </script>
 
+
 <style scoped>
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
@@ -82,23 +83,12 @@ const selectCategory = (categoryId) => {
 .category-chips-container {
   padding: 0 15px;
   position: relative;
+
+  border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
-.category-chips-container::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 40px;
-  pointer-events: none;
-  background: linear-gradient(to right, transparent, #ffffff);
-  z-index: 1;
-  transition: background 0.3s ease;
-}
-
-:root.dark .category-chips-container::after,
-.dark .category-chips-container::after {
-  background: linear-gradient(to right, transparent, #1f2937);
+.dark .category-chips-container {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 </style>
+
