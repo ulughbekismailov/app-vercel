@@ -42,19 +42,25 @@ export const useUserStore = defineStore('user', {
       this.error = null;
       
       try {
-
+        const data = telegram.getUser();
         if (telegram.isInTelegram()) {
-          const tgUser = telegram.getUser();
-          console.log("Tg User aniqlandi",tgUser);
+          console.log("Tg User aniqlandi",data);
           this.user = {
-            telegram_id: tgUser?.id || null,
-            first_name: tgUser?.first_name || 'Unknown',
-            last_name: tgUser?.last_name || '',
-            username: tgUser?.username || null,
-            language_code: tgUser?.language_code || 'en',
+            telegram_id: data?.id || null,
+            first_name: data?.first_name || 'Unknown',
+            last_name: data?.last_name || '',
+            username: data?.username || null,
+            language_code: data?.language_code || 'en',
         };
-        
-        }
+        }else{
+            this.user = {
+            telegram_id: data?.id || null,
+            first_name: data?.first_name || 'Unknown',
+            last_name: data?.last_name || '',
+            username: data?.username || null,
+            language_code: data?.language_code || 'en',
+          }
+        };
         if(data?.language_code){
           if(!localStorage.getItem('userLanguageSet')){
             this.setLanguage(data.language_code);
