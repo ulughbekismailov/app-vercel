@@ -61,7 +61,7 @@
         <div class="space-y-3">
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
             <span>{{ userStore.t('subtotal') }} (Qty:{{ itemCount }})</span>
-            <span>${{ totalPrice }}</span>
+            <span>{{ totalPrice }}uzs</span>
           </div>
 
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
@@ -74,7 +74,7 @@
               {{ userStore.t('total') }}
             </span>
             <span class="text-2xl font-bold text-telegram-blue">
-              ${{ totalPrice }}
+              {{ totalPrice }} UZS
             </span>
           </div>
         </div>
