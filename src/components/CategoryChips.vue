@@ -94,10 +94,11 @@ const selectCategory = (categoryId) => {
   pointer-events: none;
   background: linear-gradient(to right, transparent, #ffffff);
   z-index: 1;
+  transition: background 0.3s ease;
 }
 
 :root.dark .category-chips-container::after,
 .dark .category-chips-container::after {
-  background: linear-gradient(to right, transparent, #1f2937);  /* gray-800 */
+  background: linear-gradient(to right, transparent, #1f2937);
 }
 </style>

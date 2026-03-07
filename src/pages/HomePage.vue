@@ -10,7 +10,7 @@
             </svg>
           </div>
           <h1 class="text-xl font-bold text-gray-900 dark:text-white font-display">
-            UI-Shop
+            www.Books
           </h1>
         </div>
 
