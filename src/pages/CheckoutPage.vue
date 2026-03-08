@@ -135,8 +135,8 @@
             class="flex items-center gap-3 py-2"
           >
             <img 
-              :src="item.product_image || 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop'"
-              :alt="item.product_name"
+              :src="item.main_image || noImage"
+              :alt="item.main_image"
               class="w-12 h-12 rounded-lg object-cover"
             />
             <div class="flex-1 min-w-0">
@@ -144,11 +144,11 @@
                 {{ item.product_name }}
               </p>
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                Qty: {{ item.quantity }} × ${{ item.product_price }}
+                Qty: {{ item.quantity }} × {{ item.product_price }}
               </p>
             </div>
             <span class="text-sm font-semibold text-gray-900 dark:text-white">
-              ${{ item.total_price.toFixed(2) }}
+              {{ item.total_price.toFixed(2) }} UZS
             </span>
           </div>
         </div>
@@ -156,7 +156,7 @@
         <div class="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
             <span>Subtotal</span>
-            <span>${{ totalPrice.toFixed(2) }}</span>
+            <span>{{ totalPrice.toFixed(2) }} UZS</span>
           </div>
           <div class="flex justify-between text-gray-600 dark:text-gray-400">
             <span>{{ userStore.t('shipping') }}</span>
@@ -171,7 +171,7 @@
               {{ userStore.t('total') }}
             </span>
             <span class="text-2xl font-bold text-telegram-blue">
-              ${{ totalPrice.toFixed(2) }}
+              {{ totalPrice.toFixed(2) }} UZS
             </span>
           </div>
         </div>
@@ -275,6 +275,7 @@ import { useCartStore } from '@/stores/cart';
 import { useUserStore } from '@/stores/user';
 import { useOrderStore } from '@/stores/order';
 import telegram from '@/services/telegram';
+import noImage from '@/assets/no-image.png';
 
 // ============================================================
 // ROUTER & STORES
