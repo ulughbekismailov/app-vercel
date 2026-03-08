@@ -167,8 +167,9 @@ const handleSearch = (query) => {
 };
 
 const handleClearSearch = () => {
-  searchQuery.value = '';
-  productStore.setSearchQuery('');
+  // searchQuery.value = '';
+  // productStore.setSearchQuery('');
+  productStore.clearSearch()
   telegram.hapticFeedback('light');
 };
 
