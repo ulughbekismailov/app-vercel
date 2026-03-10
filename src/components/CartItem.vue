@@ -19,7 +19,7 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-lg font-bold text-gray-900 dark:text-white">
-            ${{ item.product_price }}
+            {{ item.product_price }} UZS
           </p>
           <p class="text-xs text-gray-500 dark:text-gray-400">
             {{ userStore.t('total') }}:{{ item.quantity }} × {{ item.product_price }} = {{ (item.product_price * item.quantity).toFixed(2) }}

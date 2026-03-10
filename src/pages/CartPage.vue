@@ -154,6 +154,7 @@ onMounted(async () => {
     console.log('✅ Cart loaded:', itemCount.value, 'items');
   } catch (error) {
     console.error('Failed to load cart:', error);
+  }finally{
   }
 
 });

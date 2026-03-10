@@ -203,7 +203,7 @@
         <!-- Quantity Selector -->
         <div class="card p-4 animate-slide-up stagger-3" v-if="!isInCart" >
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {{ userStore.t('quantity') }}
+            {{ userStore.t('quantity') }}product 
           </h2>
           <QuantitySelector v-model="quantity" :min="1" :max="99" />
         </div>
@@ -332,9 +332,17 @@ const addToCart = async (event) => {
 };
 
 onMounted(async () => {
-  const productId = parseInt(route.params.id);
-  await productStore.fetchProductById(productId);
-  await cartStore.fetchCart();
+  try{
+    loading = true
+    const productId = parseInt(route.params.id);
+    await productStore.fetchProductById(productId);
+    await cartStore.fetchCart();
+  }catch(error){
+    console.log(error); 
+  }finally{
+    loading = false
+  }
+
 
   if (product.value) {
     const cartQuantity = cartStore.getItemQuantity(product.value.id);
