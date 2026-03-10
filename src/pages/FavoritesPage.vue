@@ -12,6 +12,10 @@
       </div>
     </header>
 
+    <div v-if="loading" class="grid grid-cols-2 gap-3">
+      <div v-for="i in 6" :key="i" class="card h-72 animate-pulse bg-gray-200 dark:bg-gray-800"></div>
+    </div>
+
     <div class="px-4 pt-4">
       <!-- Empty State -->
       <div v-if="favoriteProducts.length === 0" class="text-center py-20 animate-fade-in">
@@ -58,10 +62,12 @@ import { useFavoriteStore } from '@/stores/favorites';
 import { useUserStore } from '@/stores/user';
 
 
+
 const router = useRouter();
 const productStore = useProductStore();
 const favoriteStore = useFavoriteStore();
 const userStore = useUserStore()
+const loading = computed(() => productStore.loading);
 
 const favoriteProducts = computed(() => {
   const favoriteIds = favoriteStore.likedIds;
