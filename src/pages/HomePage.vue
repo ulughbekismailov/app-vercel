@@ -40,6 +40,7 @@
     </header>
 
     <!-- Ad Slider -->
+    <AdSlider/>
     <!-- <AdSlider @ad-click="handleAdClick" /> -->
 
     <!-- Category Chips -->
@@ -64,16 +65,16 @@
           </svg>
         </div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          No products found
+          Mahsulot topilmadi
         </h3>
         <p class="text-gray-500 dark:text-gray-400 mb-4">
-          Try adjusting your search or filters
+          Qidiruv yoki filtrlarni sozlashga harakat qiling
         </p>
         <button
           @click="clearFilters"
           class="btn-primary inline-block"
         >
-          Clear Filters
+          Filtrlarni tozalash
         </button>
       </div>
 

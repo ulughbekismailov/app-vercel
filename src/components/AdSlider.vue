@@ -1,5 +1,5 @@
 <template>
-  <div class="ad-slider relative overflow-hidden rounded-2xl mx-4 my-3 animate-slide-up stagger-2" style="height: 160px;">
+  <div class="ad-slider relative overflow-hidden rounded-2xl mx-4 my-3 animate-slide-up stagger-2" style="height: 120px;">
     <div class="relative w-full h-full">
       <!-- Slides -->
       <transition-group name="slide-fade">
@@ -23,11 +23,11 @@
                 <p class="text-white/90 text-sm mb-3 drop-shadow">
                   {{ ad.description }}
                 </p>
-                <button 
+                <!-- <button 
                   class="bg-white/20 backdrop-blur-sm text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 group-hover:bg-white/30"
                 >
                   {{ ad.buttonText }}
-                </button>
+                </button> -->
               </div>
 
               <!-- Image/Icon -->
@@ -76,27 +76,27 @@ const props = defineProps({
     default: () => [
       {
         id: 1,
-        title: 'Summer Sale',
-        description: 'Up to 50% off on selected items',
-        buttonText: 'Shop Now',
+        title: 'Ёзги чегирма',
+        description: 'Танланган маҳсулотларга 50% гача чегирма',
+        buttonText: 'Ҳозир харид қилиш',
         gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         emoji: '☀️',
         link: '/category/sale'
       },
       {
         id: 2,
-        title: 'New Arrivals',
-        description: 'Check out our latest products',
-        buttonText: 'Explore',
+        title: 'Янги маҳсулотлар',
+        description: 'Энг сўнгги маҳсулотларимизни кўриб чиқинг',
+        buttonText: 'Кўриш',
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
         emoji: '✨',
         link: '/category/new'
       },
       {
         id: 3,
-        title: 'Free Shipping',
-        description: 'On orders over $50',
-        buttonText: 'Learn More',
+        title: 'Бепул етказиб бериш',
+        description: '$50 дан юқори буюртмалар учун',
+        buttonText: 'Батафсил',
         gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
         emoji: '🚚',
         link: '/shipping'
