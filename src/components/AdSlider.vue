@@ -76,7 +76,7 @@ const props = defineProps({
     default: () => [
       {
         id: 1,
-        title: 'Ёзги чегирма',
+        title: 'Бахорги чегирма',
         description: 'Танланган маҳсулотларга 50% гача чегирма',
         buttonText: 'Ҳозир харид қилиш',
         gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -95,7 +95,7 @@ const props = defineProps({
       {
         id: 3,
         title: 'Бепул етказиб бериш',
-        description: '$50 дан юқори буюртмалар учун',
+        description: '500 миг сум дан юқори буюртмалар учун',
         buttonText: 'Батафсил',
         gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
         emoji: '🚚',

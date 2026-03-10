@@ -123,6 +123,7 @@ import CategoryChips from '@/components/CategoryChips.vue';
 import telegram from '@/services/telegram';
 import { useFavoriteStore } from '@/stores/favorites';
 import { useProductStore } from '@/stores/product';
+import AdSlider from '@/components/AdSlider.vue';
 
 const router = useRouter();
 const productStore = useProductStore();
