@@ -17,14 +17,15 @@
         <div class="relative h-96 overflow-hidden">
           <transition-group name="slide-fade">
 
-            <img
+            
+            <img v-if="images"
               v-for="(image, index) in images"
               :key="index"
-              :src="image || noImage"
+              :src="image"
               :alt="product.name"
               class="absolute w-full h-full object-cover"
               v-show="currentImageIndex === index" />
-
+            <img v-else :src="noImage" alt="">
           </transition-group>
 
           <!-- Favorite Button -->
