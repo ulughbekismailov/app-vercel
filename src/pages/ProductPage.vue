@@ -211,9 +211,9 @@
     </div>
 
     <!-- Error State -->
-    <div v-else class="text-center py-20">
+    <!-- <div v-else class="text-center py-20">
       <p class="text-gray-500 dark:text-gray-400">{{ userStore.t('productNotFound') }} :)</p>
-    </div>
+    </div> -->
 
     <!-- Sticky Add to Cart Button -->
     <div 
@@ -332,17 +332,10 @@ const addToCart = async (event) => {
 };
 
 onMounted(async () => {
-  try{
-    loading = true
-    const productId = parseInt(route.params.id);
-    await productStore.fetchProductById(productId);
-    await cartStore.fetchCart();
-  }catch(error){
-    console.log(error); 
-  }finally{
-    loading = false
-  }
 
+  const productId = parseInt(route.params.id);
+  await productStore.fetchProductById(productId);
+  await cartStore.fetchCart();
 
   if (product.value) {
     const cartQuantity = cartStore.getItemQuantity(product.value.id);
