@@ -12,7 +12,7 @@
       />
       
       <div 
-         v-if="product.discount_percent"
+         v-if="product.discount_percent & product.is_discount_active"
         class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-lg"
       >
         -{{ product.discount_percent }}%
@@ -58,7 +58,7 @@
       </h3>
 
       <div class="flex items-center gap-2">
-        <span v-if="product.discount_percent" 
+        <span v-if="product.discount_percent & product.is_discount_active" 
          class="text-lg font-bold text-gray-900 dark:text-white">
           {{ product.new_price }} uzs
         </span>
@@ -67,7 +67,7 @@
           {{ product.price }} uzs
         </span>
         <span 
-          v-if="product.discount_percent" 
+          v-if="product.discount_percent & product.is_discount_active" 
           class="text-sm text-gray-400 line-through"
         >
           {{ product.price }} uzs
