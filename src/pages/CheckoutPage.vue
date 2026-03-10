@@ -261,7 +261,7 @@
           </svg>
           <span v-if="!isFormValid && !isSubmitting">{{ userStore.t('completeRequiredFields') }}</span>
           <span v-else-if="isSubmitting">Processing...</span>
-          <span v-else>Confirm Order (${{ totalPrice.toFixed(2) }})</span>
+          <span v-else>Buyirtma-({{ totalPrice.toFixed(2) }})UZS</span>
         </button>
       </div>
     </div>
