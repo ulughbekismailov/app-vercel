@@ -18,7 +18,7 @@
           <transition-group name="slide-fade">
 
             
-            <img v-if="images"
+            <img v-if="images.length"
               v-for="(image, index) in images"
               :key="index"
               :src="image"
