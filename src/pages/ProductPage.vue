@@ -18,14 +18,19 @@
           <transition-group name="slide-fade">
 
             
-            <img v-if="images.length"
-              v-for="(image, index) in images"
-              :key="index"
-              :src="image"
-              :alt="product.name"
-              class="absolute w-full h-full object-cover"
-              v-show="currentImageIndex === index" />
-            <img v-else :src="noImage" alt="">
+          <img
+            v-if="images.length === 0"
+            :src="noImage"
+            alt="No image"
+          />
+
+          <img
+            v-for="(image, index) in images"
+            :key="index"
+            :src="image"
+            :alt="product.name"
+            v-show="currentImageIndex === index"
+          />
           </transition-group>
 
           <!-- Favorite Button -->
@@ -273,12 +278,9 @@ const loading = computed(() => productStore.loading);
 const product = computed(() => productStore.currentProduct);
 const productRating = computed(() => Math.floor(Math.random() * 2) + 4);
 
-const images = computed(() => {
-  if (!product.value) return [];
-  if (product.value.images?.length) {
-    return product.value.images.map(img => img.image);
-  }
-});
+const images = computed(() =>
+  product.value?.images?.map(img => img.image) || []
+);
 
 const totalPrice = computed(() => {
   return product.value ? product.value.price * quantity.value : 0;
@@ -288,10 +290,10 @@ const isInCart = computed(() => {
   return product.value ? cartStore.isInCart(product.value.id) : false;
 });
 
-
 const nextImage = () => {
-  currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length;
-  telegram.hapticFeedback('selection');
+  if (!images.value.length) return;
+    telegram.hapticFeedback('selection');
+    currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length;
 };
 
 const prevImage = () => {
